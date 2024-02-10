@@ -1,16 +1,23 @@
+from time import sleep
 import tkinter
-import sys
 import os
+from picamera import PiCamera
 
-# check if 
+# check if display env variable is ok
 if os.environ.get('DISPLAY','') == '':
-    print('no display found. Using :0.0')
+    #print('No $DISPLAY env variable, so using :0.0')
     os.environ.__setitem__('DISPLAY', ':0.0')
 
 master = tkinter.Tk()
-master.title("tester")
-master.geometry("300x100")
+master.attributes('-fullscreen',True)
+master.title("Tamagotchi-Incubator")
+
+camera = PiCamera()
+#camera.resolution = (800, 600)
+camera.framerate = 15
+camera.start_preview()
+sleep(5)
+camera.capture('test.jpg')
+camera.stop_preview()
 
 master.mainloop()
-
-piemel
