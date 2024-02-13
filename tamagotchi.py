@@ -8,9 +8,20 @@ from adafruit_servokit import ServoKit
 kit = ServoKit(channels=16)
 servoLabels = ["L", "M", "R"]
 servoChannels = [0, 1, 2]
-servoRetractAngles = [180, 180, 0]
+servoRetractAngles = [100, 110, 60] #calibration
+servoActivateAngles = [75, 75, 95] #calibration
 
 
+
+
+
+
+
+
+
+
+
+'''
 # check if display env variable is ok
 if os.environ.get('DISPLAY','') == '':
     #print('No $DISPLAY env variable, so using :0.0')
@@ -19,9 +30,10 @@ if os.environ.get('DISPLAY','') == '':
 master = tkinter.Tk()
 master.attributes('-fullscreen',True)
 master.title("Tamagotchi-Incubator")
+'''
 
 while(True):
-  kit.servo[0].angle = 30
+  kit.servo[0].angle = 100
 
 
 
