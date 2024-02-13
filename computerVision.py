@@ -12,7 +12,7 @@ image = ski.color.rgb2gray(imageColor)
 patternColor = ski.io.imread('poop.jpg')
 pattern = ski.color.rgb2gray(patternColor)
 
-#coin = image[170:220, 75:130]
+
 
 result = match_template(image, pattern)
 ij = np.unravel_index(np.argmax(result), result.shape)
@@ -31,8 +31,8 @@ ax2.imshow(image, cmap=plt.cm.gray)
 ax2.set_axis_off()
 ax2.set_title('image')
 # highlight matched region
-hcoin, wcoin = pattern.shape
-rect = plt.Rectangle((x, y), wcoin, hcoin, edgecolor='r', facecolor='none')
+htemplate, wtemplate = pattern.shape
+rect = plt.Rectangle((x, y), wtemplate, htemplate, edgecolor='r', facecolor='none')
 ax2.add_patch(rect)
 
 ax3.imshow(result)
