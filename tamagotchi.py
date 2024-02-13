@@ -4,13 +4,25 @@ import os
 from picamera import PiCamera
 from adafruit_servokit import ServoKit
 
+class Button:
+  def __init__(self, label, channel, retractAngle, activateAngle):
+    self.label = label
+    self.channel = channel
+    self.retractAngle = retractAngle
+    self.activateAngle = activateAngle
+
+  def press(self):
+    kit.servo[self.channel].angle = self.activateAngle
+    sleep(0.5)
+    kit.servo[self.channel].angle = self.retractAngle
+    sleep(0.5)
+
+buttonL = Button("left", 0, 100, 75)
+buttonM = Button("middle", 1, 110, 75)
+buttonR = Button("right", 2, 60, 95)
+
 # Servo's
 kit = ServoKit(channels=16)
-servoLabels = ["L", "M", "R"]
-servoChannels = [0, 1, 2]
-servoRetractAngles = [100, 110, 60] #calibration
-servoActivateAngles = [75, 75, 95] #calibration
-
 
 
 
@@ -33,8 +45,9 @@ master.title("Tamagotchi-Incubator")
 '''
 
 while(True):
-  kit.servo[0].angle = 100
-
+  buttonL.press()
+  buttonM.press()
+  buttonR.press()
 
 
 '''
