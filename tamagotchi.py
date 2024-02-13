@@ -2,6 +2,14 @@ from time import sleep
 import tkinter
 import os
 from picamera import PiCamera
+from adafruit_servokit import ServoKit
+
+# Servo's
+kit = ServoKit(channels=16)
+servoLabels = ["L", "M", "R"]
+servoChannels = [0, 1, 2]
+servoRetractAngles = [180, 180, 0]
+
 
 # check if display env variable is ok
 if os.environ.get('DISPLAY','') == '':
@@ -12,6 +20,12 @@ master = tkinter.Tk()
 master.attributes('-fullscreen',True)
 master.title("Tamagotchi-Incubator")
 
+while(True):
+  kit.servo[0].angle = 30
+
+
+
+'''
 camera = PiCamera()
 #camera.resolution = (800, 600)
 camera.framerate = 15
@@ -21,3 +35,4 @@ camera.capture('test.jpg')
 camera.stop_preview()
 
 master.mainloop()
+'''
