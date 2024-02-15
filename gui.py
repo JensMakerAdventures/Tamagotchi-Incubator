@@ -11,10 +11,10 @@ def checkSetDisplay():
 class TamaGui():
     def __init__(self, buttonControllerInput):
         checkSetDisplay()
-        buttonController = buttonControllerInput
-        gui = tk.Tk()
-        gui.attributes('-fullscreen',True)
-        gui.title("Tamagotchi-Incubator")
+        self.buttonController = buttonControllerInput
+        self.gui = tk.Tk()
+        self.gui.attributes('-fullscreen',True)
+        self.gui.title("Tamagotchi-Incubator")
         self.buildGUI()
         
     def buildGUI(self):
@@ -23,3 +23,4 @@ class TamaGui():
         
     def mainLoop(self):
         self.gui.mainloop()
+

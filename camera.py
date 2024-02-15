@@ -2,7 +2,7 @@ from picamera import PiCamera
 from time import sleep
 
 class TamaCam():
-    def __init(self):
+    def __init__(self):
         self.camera = PiCamera()
         #self.camera.resolution = (800, 600)
         #self.camera.framerate = 15
@@ -15,6 +15,6 @@ class TamaCam():
         return frame
     
     def preview(self, seconds):
-        self.camaera.start_preview()
+        self.camera.start_preview()
         sleep(seconds)
-        self.camaera.stop_preview()
+        self.camera.stop_preview()

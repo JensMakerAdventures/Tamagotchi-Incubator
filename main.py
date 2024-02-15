@@ -14,15 +14,11 @@ tamaGui = gui.TamaGui(buttonController)
 tamaStatemachine = statemachine.TamaStatemachine()
 tamaCam = camera.TamaCam()
 
-
 buttonController.pressL()
 buttonController.pressM()
 buttonController.pressR()
 
 while(True):
     image = tamaCam.preview(10)
-
-pattern = vision.getPattern('poop')
-vision.findPattern(image, 'poop')
 
 tamaGui.mainLoop()

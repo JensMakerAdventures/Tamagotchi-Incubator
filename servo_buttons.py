@@ -6,7 +6,7 @@ class ButtonController:
     self.buttonL = buttonL
     self.buttonM = buttonM
     self.buttonR = buttonR
-    kit = ServoKit(channels=16)
+    self.kit = ServoKit(channels=16)
 
   def __press(self, button):
     self.kit.servo[button.channel].angle = button.activateAngle
