@@ -5,14 +5,20 @@ from skimage import data
 from skimage.feature import match_template
 import skimage as ski
 
-import os
+from skimage.io import imread
+from skimage.io import imread_collection
+
+class TamaVision(object):
+    def __init__(self):
+        
+        dirName = '/*.png'
+        collection = imread_collection(dirName)
 
 def findPattern(image, pattern):
-    match pattern:
-        case 'poop':
-            patternColor = ski.io.imread('poop.jpg')      
-        case _:
-            return 0
+    if(pattern=='poop'):
+        patternColor = ski.io.imread('poop.jpg')      
+    else:
+        return 0
     image = ski.color.rgb2gray(image)
     pattern = ski.color.rgb2gray(pattern)
     result = match_template(image, pattern)
