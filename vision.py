@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from skimage import data
 from skimage.feature import match_template
 import skimage as ski
+from skimage.transform import rescale
 
 from skimage.io import imread
 from skimage.io import imread_collection
@@ -17,17 +18,19 @@ class TamaVision(object):
         self.collection = imread_collection(dirName)
         print(self.collection.files[0])
 
-    def findPattern(self, imageIn, patternName):
-        #if(pattern=='poop'):
-        patternIn = ski.io.imread('poop.jpg')      
-        #else:
-        #    return 0
-        image = ski.color.rgb2gray(imageIn)
-        pattern = ski.color.rgb2gray(patternIn)
+    def findPattern(self, imageLocation, patternName):
+        pattern = ski.io.imread('sprites/angel.png', as_gray=True)  
+        pattern = rescale(pattern, 12.7, anti_aliasing = True)
+
+        image = ski.io.imread(imageLocation, as_gray=True)   
+
+        #image = ski.color.rgb2gray(imageImported)
+
         result = match_template(image, pattern)
         ij = np.unravel_index(np.argmax(result), result.shape)
         x, y = ij[::-1]
         likeliness = result[ij]
+        print('Likeliness template match: ' + str(likeliness))
         
         fig = plt.figure(figsize=(8, 3))
         ax1 = plt.subplot(1, 3, 1)
@@ -54,10 +57,12 @@ class TamaVision(object):
         ax3.plot(x, y, 'o', markeredgecolor='r', markerfacecolor='none', markersize=10)
 
         plt.show()
-        return 
-    
-tamaVision = TamaVision()
+        
+        return likeliness
 
-imageColor = ski.io.imread('test.jpg')
-patternColor = ski.io.imread('poop.jpg')
-tamaVision.findPattern(imageColor, patternColor)
+def testTamaVision():    
+    tamaVision = TamaVision()
+
+    imageColor = ski.io.imread('test.jpg')
+    patternColor = ski.io.imread('poop.jpg')
+    tamaVision.findPattern(imageColor, patternColor)
