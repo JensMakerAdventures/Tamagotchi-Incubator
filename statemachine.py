@@ -1,13 +1,13 @@
 from transitions import Machine
 
-class Tamagotchi(object):
+class TamaStatemachine(object):
   # Define some states
   states = ['unknown', 'egg', 'idle', 'sleeping', 'sick', 'poopy', 'dead',
              'transforming', 'playing', 'eating', 'snacking', 'showing_clock',
                'setting_clock', 'checking_stats']
   
   def __init__(self):
-    self.machine = Machine(model=self, states=Tamagotchi.states, initial = 'unknown')
+    self.machine = Machine(model=self, states=self.states, initial = 'unknown')
     self.machine.add_transition('play', 'idle', 'playing')
     self.machine.add_transition('done playing', 'playing', 'idle')
     self.machine.add_transition('eat', 'idle', 'eating')

@@ -8,20 +8,20 @@ class ButtonController:
     self.buttonR = buttonR
     kit = ServoKit(channels=16)
 
-  def __press(button):
-    kit.servo[button.channel].angle = button.activateAngle
+  def __press(self, button):
+    self.kit.servo[button.channel].angle = button.activateAngle
     sleep(0.5)
-    kit.servo[button.channel].angle = button.retractAngle
+    self.kit.servo[button.channel].angle = button.retractAngle
     sleep(0.5)
 
-  def pressL():
-    __press(self.buttonL)
+  def pressL(self):
+    self.__press(self.buttonL)
   
-  def pressM():
-    __press(self.buttonM)
+  def pressM(self):
+    self.__press(self.buttonM)
   
-  def pressR():
-    __press(self.buttonR)
+  def pressR(self):
+    self.__press(self.buttonR)
 
 
 class TamaButton:
