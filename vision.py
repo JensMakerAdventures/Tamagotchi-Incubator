@@ -10,8 +10,9 @@ from skimage.transform import rescale
 
 from skimage.io import imread
 from skimage.io import imread_collection
+import os
 
-
+os.environ.__setitem__('DISPLAY', ':0.0') 
 
 class TamaVision(object):
     def __init__(self):
@@ -20,13 +21,16 @@ class TamaVision(object):
         self.collection = imread_collection(dirName)
         #print(self.collection.files[0])
 
-    def findPattern(self, imageLocation, patternName):
-        pattern = ski.io.imread('sprites/angel.png', as_gray=True)  
-        pattern = rescale(pattern, 12.7, anti_aliasing = True)
+    def preProcess(self, imageFileName, patternFileName):
+        pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True)
 
-        image = ski.io.imread(imageLocation, as_gray=True)   
+        pattern = rescale(pattern, 13.5, anti_aliasing = True) # found through calibration
 
-        #image = ski.color.rgb2gray(imageImported)
+        image = ski.io.imread(imageFileName, as_gray=True)
+        return image, pattern
+
+    def findPattern(self, imageFileName, patternFileName):
+        image, pattern = self.preProcess(imageFileName, patternFileName)
 
         result = match_template(image, pattern)
         ij = np.unravel_index(np.argmax(result), result.shape)
@@ -41,11 +45,11 @@ class TamaVision(object):
 
         ax1.imshow(pattern, cmap=plt.cm.gray)
         ax1.set_axis_off()
-        ax1.set_title('template')
+        ax1.set_title('Template: ' + patternFileName)
 
         ax2.imshow(image, cmap=plt.cm.gray)
         ax2.set_axis_off()
-        ax2.set_title('image')
+        ax2.set_title('Screen frame')
         # highlight matched region
         htemplate, wtemplate = pattern.shape
         rect = plt.Rectangle((x, y), wtemplate, htemplate, edgecolor='r', facecolor='none')
@@ -53,17 +57,20 @@ class TamaVision(object):
 
         ax3.imshow(result)
         ax3.set_axis_off()
-        ax3.set_title('`match_template`\nresult')
+        ax3.set_title('Likeliness: ' + str(int(likeliness*100)) + '%')
         # highlight matched region
         ax3.autoscale(False)
         ax3.plot(x, y, 'o', markeredgecolor='r', markerfacecolor='none', markersize=10)
 
+        mng = plt.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
+
         plt.show()
-        sleep(100)
         return likeliness
 
 def testTamaVision():    
     tamaVision = TamaVision()
-    tamaVision.findPattern('frame.jpg', 'angel')
+    tamaVision.findPattern('frame.jpg', 'angel.png')
 
-#testTamaVision()
+print("Running vision script!")
+testTamaVision()
