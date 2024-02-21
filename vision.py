@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from time import sleep
+
 from skimage import data
 from skimage.feature import match_template
 import skimage as ski
@@ -16,7 +18,7 @@ class TamaVision(object):
         
         dirName = 'sprites/*.png'
         self.collection = imread_collection(dirName)
-        print(self.collection.files[0])
+        #print(self.collection.files[0])
 
     def findPattern(self, imageLocation, patternName):
         pattern = ski.io.imread('sprites/angel.png', as_gray=True)  
@@ -57,12 +59,11 @@ class TamaVision(object):
         ax3.plot(x, y, 'o', markeredgecolor='r', markerfacecolor='none', markersize=10)
 
         plt.show()
-        
+        sleep(100)
         return likeliness
 
 def testTamaVision():    
     tamaVision = TamaVision()
+    tamaVision.findPattern('frame.jpg', 'angel')
 
-    imageColor = ski.io.imread('test.jpg')
-    patternColor = ski.io.imread('poop.jpg')
-    tamaVision.findPattern(imageColor, patternColor)
+#testTamaVision()

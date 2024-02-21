@@ -4,8 +4,11 @@ import camera
 import servo_buttons
 import statemachine
 import vision
-
+import os
 from time import sleep
+
+# This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
+os.environ.__setitem__('DISPLAY', ':0.0') 
 
 buttonL = servo_buttons.TamaButton("left", 0, 100, 75)
 buttonM = servo_buttons.TamaButton("middle", 1, 110, 75)
@@ -17,13 +20,14 @@ tamaStatemachine = statemachine.TamaStatemachine()
 tamaCam = camera.TamaCam()
 tamaVision = vision.TamaVision()
 
-buttonController.pressL()
-buttonController.pressM()
-buttonController.pressR()
+#buttonController.pressL()
+#buttonController.pressM()
+#buttonController.pressR()
 
+#while(True):
+#    testString = 'frame.jpg'
+#    frame = tamaCam.getFrameToFile(testString)
+#    tamaVision.findPattern(testString, 'poep')
 while(True):
-    testString = 'frame.jpg'
-    frame = tamaCam.getFrameToFile(testString)
-    tamaVision.findPattern(testString, 'poep')
-
-tamaGui.mainLoop()
+    #tamaGui.mainLoop()
+    tamaVision.findPattern('frame.jpg', 'blob')
