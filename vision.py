@@ -10,6 +10,7 @@ from skimage.transform import rescale
 
 from skimage.io import imread
 from skimage.io import imread_collection
+from skimage import filters
 import os
 
 os.environ.__setitem__('DISPLAY', ':0.0') 
@@ -24,10 +25,14 @@ class TamaVision(object):
     def preProcess(self, imageFileName, patternFileName):
         pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True)
 
-        pattern = rescale(pattern, 13.5, anti_aliasing = True) # found through calibration
-
+        pattern = rescale(pattern, 13.9, anti_aliasing = True) # found through calibration, first step measure pixels, then trial and error test for best match
+        
         image = ski.io.imread(imageFileName, as_gray=True)
-        return image, pattern
+        thresh = filters.threshold_otsu(image)
+        print(thresh)
+        binary = image > 0.8
+       
+        return binary, pattern
 
     def findPattern(self, imageFileName, patternFileName):
         image, pattern = self.preProcess(imageFileName, patternFileName)
