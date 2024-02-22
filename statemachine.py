@@ -31,3 +31,5 @@ class TamaStatemachine(object):
     self.machine.add_transition('show_clock', ['idle', 'sick', 'poopy', 'egg', 'sleeping'], 'showing_clock')
     self.machine.add_transition('set_clock', 'showing_clock', 'setting_clock')
     self.machine.add_transition('back_to_clock', 'setting_clock', 'showing_clock')
+
+  

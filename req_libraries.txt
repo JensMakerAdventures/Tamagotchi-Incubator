@@ -1,0 +1,6 @@
+numpy
+matplotlib
+scikit-image
+adafruit-circuitpython-servokit
+picamera
+transitions

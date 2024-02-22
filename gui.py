@@ -13,7 +13,7 @@ class TamaGui():
         checkSetDisplay()
         self.buttonController = buttonControllerInput
         self.gui = tk.Tk()
-        self.gui.attributes('-fullscreen',True)
+        #self.gui.attributes('-fullscreen',True)
         self.gui.title("Tamagotchi-Incubator")
         self.buildGUI()
         

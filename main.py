@@ -10,9 +10,9 @@ from time import sleep
 # This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
 os.environ.__setitem__('DISPLAY', ':0.0') 
 
-buttonL = servo_buttons.TamaButton("left", 0, 100, 75)
-buttonM = servo_buttons.TamaButton("middle", 1, 110, 75)
-buttonR = servo_buttons.TamaButton("right", 2, 60, 95)
+buttonL = servo_buttons.TamaButton("left", 0, 140, 75)
+buttonM = servo_buttons.TamaButton("middle", 1, 150, 75)
+buttonR = servo_buttons.TamaButton("right", 2, 20, 95)
 
 buttonController = servo_buttons.ButtonController(buttonL, buttonM, buttonR)
 tamaGui = gui.TamaGui(buttonController)
@@ -25,9 +25,10 @@ tamaVision = vision.TamaVision()
 #buttonController.pressR()
 
 #while(True):
-#    testString = 'frame.jpg'
-#    frame = tamaCam.getFrameToFile(testString)
-#    tamaVision.findPattern(testString, 'poep')
-while(True):
+#tamaCam.calibrate()
+testString = 'frame.jpg'
+frame = tamaCam.getFrameToFile(testString)
+tamaVision.findPattern(testString, 'angel.png')
+#while(True):
     #tamaGui.mainLoop()
-    tamaVision.findPattern('frame.jpg', 'blob')
+    #tamaVision.findPattern('frame.jpg', 'angel.png')
