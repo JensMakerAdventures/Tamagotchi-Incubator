@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from time import sleep
+from datetime import datetime
 
 from skimage import data
 from skimage.feature import match_template
@@ -19,6 +20,7 @@ class TamaVision(object):
     def __init__(self):
         
         dirName = 'sprites/*.png'
+        self.positiveThreshold = 0.5 # value above this means we've found the pattern
         self.collection = imread_collection(dirName)
         #print(self.collection.files[0])
 
@@ -45,6 +47,9 @@ class TamaVision(object):
         print('Likeliness template match: ' + str(likeliness))
         
         fig = plt.figure(figsize=(8, 3))
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        #plt.title(current_time)
         ax1 = plt.subplot(1, 3, 1)
         ax2 = plt.subplot(1, 3, 2)
         ax3 = plt.subplot(1, 3, 3, sharex=ax2, sharey=ax2)
@@ -71,8 +76,10 @@ class TamaVision(object):
         mng = plt.get_current_fig_manager()
         mng.resize(*mng.window.maxsize())
 
+        plt.savefig('visionLog/' + current_time + '.png')
         plt.show()
-        return likeliness
+        
+        return (likeliness > self.positiveThreshold)
 
 def testTamaVision():    
     tamaVision = TamaVision()
