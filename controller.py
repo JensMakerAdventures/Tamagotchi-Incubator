@@ -67,15 +67,22 @@ class TamaController(object):
     print('Care state after: ' + self.careState.state)
 
   def detectCareState(self, frameFileName):
-    'idle', 'sleeping', 'sick', 'poopy',
-             'unhappy', 'hungry', 'undisciplined'
     if self.tamaVision.findPattern(frameFileName, 'poop.png'):
-            self.physState.to_poopy()  
-            return    
-    if self.tamaVision.findPattern(frameFileName, 'poop.png'):
-        self.physState.to_poopy()  
-        return    
-
+      self.physState.to_poopy()  
+      return    
+    if self.tamaVision.findPattern(frameFileName, 'sick.png'):
+      self.physState.to_sick()  
+      return
+    if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
+      self.physState.to_sleep()
+      return   
+    # implement discipline check, hungry check and unhappy checks here
+    if False:
+      self.physState.to_undisciplined()
+    if False:
+      self.physState.to_unhappy()
+    if False:
+      self.physState.to_hungry()
 
   def detectPhysState(self, frameFileName):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
