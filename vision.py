@@ -31,11 +31,11 @@ class TamaVision(object):
         pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
 
         image = ski.io.imread(imageFileName, as_gray=True)
-        thresh = filters.threshold_otsu(image)-0.38
-        print('Treshold: ' + str(thresh))
-        binary = image > thresh
+        #thresh = filters.threshold_otsu(image)-0.38
+        #print('Treshold: ' + str(thresh))
+        #binary = image > thresh
        
-        return binary, pattern
+        return image, pattern
 
     def findPattern(self, imageFileName, patternFileName):
         image, pattern = self.preProcess(imageFileName, patternFileName)
@@ -77,7 +77,9 @@ class TamaVision(object):
         mng.resize(*mng.window.maxsize())
 
         plt.savefig('visionLog/' + current_time + '.png')
-        plt.show()
+
+        if likeliness > self.positiveThreshold:
+            plt.show()
         
         return (likeliness > self.positiveThreshold)
 

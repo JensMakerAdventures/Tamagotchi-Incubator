@@ -22,6 +22,14 @@ class ButtonController:
   
   def pressR(self):
     self.__press(self.buttonR)
+  
+  def pressLandR(self):
+    self.kit.servo[self.buttonL.channel].angle = self.buttonL.activateAngle
+    self.kit.servo[self.buttonR.channel].angle = self.buttonR.activateAngle
+    sleep(0.5)
+    self.kit.servo[self.buttonL.channel].angle = self.buttonL.retractAngle
+    self.kit.servo[self.buttonR.channel].angle = self.buttonR.retractAngle
+    sleep(0.5)
 
 
 class TamaButton:

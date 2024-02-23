@@ -33,6 +33,6 @@ tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tam
 #frame = tamaCam.getFrameToFile(testString)
 #tamaVision.findPattern(testString, 'angel.png')
 
-#while(True):
-tamaLight.strobe(False, 5, 0.4)
-tamaController.getAndHandleState()
+while(True):
+    #tamaLight.strobe(False, 5, 0.4)                               
+    tamaController.getAndHandleState()

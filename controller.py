@@ -54,6 +54,15 @@ class TamaController(object):
     self.tamaCam.getFrameToFile(fn)
     self.tamaLight.turnOff()
     return fn
+  
+  def checkUnhappyHungry(self):
+    unhappy = False
+    hungry = False
+    return unhappy, hungry
+
+  def checkNeedsDiscipline(self):
+    needsDiscipline = False
+    return needsDiscipline
 
   def getState(self):
     fn = self.getFrame()
@@ -67,7 +76,7 @@ class TamaController(object):
     print('Care state after: ' + self.careState.state)
 
   def detectCareState(self, frameFileName):
-    if self.tamaVision.findPattern(frameFileName, 'poop.png'):
+    if self.tamaVision.findPattern(frameFileName, 'poop1.png'):
       self.physState.to_poopy()  
       return    
     if self.tamaVision.findPattern(frameFileName, 'sick.png'):
@@ -76,14 +85,21 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
       self.physState.to_sleep()
       return   
+    
     # implement discipline check, hungry check and unhappy checks here
-    if False:
+    needsDiscipline = self.checkNeedsDiscipline()
+    if needsDiscipline:
       self.physState.to_undisciplined()
-    if False:
+      return
+    
+    unhappy, hungry = self.checkUnhappyHungry()
+    if unhappy:
       self.physState.to_unhappy()
-    if False:
+      return
+    if hungry:
       self.physState.to_hungry()
-
+      return
+    
   def detectPhysState(self, frameFileName):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  

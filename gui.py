@@ -18,9 +18,17 @@ class TamaGui():
         self.buildGUI()
         
     def buildGUI(self):
-        B = tk.Button(self.gui, text ="Push L", command = self.buttonController.pressL)
-        B.place(x=50,y=50)
+        lButton = tk.Button(self.gui, text ="Push L", command = self.buttonController.pressL)
+        lButton.place(x=10,y=10)
+
+        mButton = tk.Button(self.gui, text ="Push M", command = self.buttonController.pressM)
+        mButton.place(x=10,y=40)
+
+        rButton = tk.Button(self.gui, text ="Push R", command = self.buttonController.pressR)
+        rButton.place(x=10,y=70)
+
+        lAndRButton = tk.Button(self.gui, text ="Push L&R", command = self.buttonController.pressLandR)
+        lAndRButton.place(x=10,y=100)
         
     def mainLoop(self):
         self.gui.mainloop()
-
