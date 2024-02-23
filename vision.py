@@ -8,6 +8,7 @@ from skimage import data, exposure, feature
 from skimage.feature import match_template
 import skimage as ski
 from skimage.transform import rescale
+from skimage.filters import threshold_yen
 
 from skimage.io import imread
 import os
@@ -31,10 +32,14 @@ class TamaVision(object):
 
     def findPattern(self, imageFileName, patternFileName):
         image = ski.io.imread(imageFileName, as_gray=True)
-        # crop image
+
         if patternFileName != 'needs_discipline.png':
+            # crop image
             image = image[134:341, 99:547]
-            #image = exposure.rescale_intensity(image)
+
+            # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
+            thresh = threshold_yen(image)
+            image = image > thresh
 
         pattern = ski.io.imread('spritesRescaled/' + patternFileName, as_gray=True)                                                                                                         
 
