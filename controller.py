@@ -87,8 +87,7 @@ class TamaController(object):
       return   
     
     # implement discipline check, hungry check and unhappy checks here
-    needsDiscipline = self.checkNeedsDiscipline()
-    if needsDiscipline:
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png'):
       self.physState.to_undisciplined()
       return
     

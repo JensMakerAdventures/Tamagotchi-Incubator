@@ -26,9 +26,10 @@ class TamaVision(object):
 
     def preProcess(self, imageFileName, patternFileName):
         pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True)
-        scaleFactor = 12.6 # scale value found through calibration, first step measure pixels, then trial and error test for best match
-        print('ScaleFactor: ' + str(scaleFactor))
-        pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
+        if patternFileName != 'needs_discipline.png':
+            scaleFactor = 12.6 # scale value found through calibration, first step measure pixels, then trial and error test for best match
+            print('ScaleFactor: ' + str(scaleFactor))
+            pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
 
         image = ski.io.imread(imageFileName, as_gray=True)
         #thresh = filters.threshold_otsu(image)-0.38
@@ -48,7 +49,7 @@ class TamaVision(object):
         
         fig = plt.figure(figsize=(8, 3))
         now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
+        current_time = datetime.datetime.now()
         #plt.title(current_time)
         ax1 = plt.subplot(1, 3, 1)
         ax2 = plt.subplot(1, 3, 2)
@@ -77,7 +78,7 @@ class TamaVision(object):
         mng.resize(*mng.window.maxsize())
 
         plt.savefig('visionLog/' + current_time + '.png')
-
+        
         if likeliness > self.positiveThreshold:
             plt.show()
         
