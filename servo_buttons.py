@@ -22,6 +22,14 @@ class ButtonController:
   
   def pressR(self):
     self.__press(self.buttonR)
+
+  def pressL_nTimes(self, n):
+    for i in range(n):
+      self.pressL()
+
+  def pressR_nTimes(self, n):
+    for i in n:
+      self.pressR()
   
   def pressLandR(self):
     self.kit.servo[self.buttonL.channel].angle = self.buttonL.activateAngle

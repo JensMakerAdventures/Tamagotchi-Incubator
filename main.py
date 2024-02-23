@@ -13,7 +13,7 @@ os.environ.__setitem__('DISPLAY', ':0.0')
 
 buttonL = servo_buttons.TamaButton("left", 0, 140, 75)
 buttonM = servo_buttons.TamaButton("middle", 1, 150, 75)
-buttonR = servo_buttons.TamaButton("right", 2, 20, 95)
+buttonR = servo_buttons.TamaButton("right", 2, 20, 90)
 
 tamaButtons = servo_buttons.ButtonController(buttonL, buttonM, buttonR)
 tamaGui = gui.TamaGui(tamaButtons)
@@ -34,5 +34,9 @@ tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tam
 #tamaVision.findPattern(testString, 'angel.png')
 
 while(True):
-    #tamaLight.strobe(False, 5, 0.4)                               
-    tamaController.getAndHandleState()
+    #tamaLight.strobe(False, 5, 0.4)
+    #tamaButtons.pressL()
+    if True:                               
+        tamaController.getAndHandleState()
+    else:
+        tamaGui.mainLoop()
