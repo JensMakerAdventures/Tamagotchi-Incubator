@@ -15,8 +15,7 @@ import os
 
 class TamaVision(object):
     def __init__(self):
-        
-        dirName = 'sprites/*.png'
+        self.thresOffset = 0.02
         self.positiveThreshold = 0.5 # value above this means we've found the pattern
 
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
@@ -39,9 +38,16 @@ class TamaVision(object):
 
             # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
             thresh = threshold_yen(image)
-            image = image > thresh
+            image = image > (thresh+self.thresOffset)
 
-        pattern = ski.io.imread('spritesRescaled/' + patternFileName, as_gray=True)                                                                                                         
+        rescaleLive = False
+        if rescaleLive:
+            pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True) 
+            scaleFactor = 12.6
+            print('ScaleFactor: ' + str(scaleFactor))
+            pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0)      
+        else:
+            pattern = ski.io.imread('spritesRescaled/' + patternFileName, as_gray=True)                                                                                              
 
         result = match_template(image, pattern)
 
@@ -80,16 +86,29 @@ class TamaVision(object):
 
         now = datetime.now()
         date_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        plt.savefig('visionLog/' + date_time + patternFileName)     
-        if likeliness > self.positiveThreshold:
-            plt.pause(10)
+        plt.savefig('visionLog/' + date_time + patternFileName)
+        
+        if patternFileName != 'needs_discipline.png':
+            if likeliness > self.positiveThreshold:
+                plt.pause(10)
+            plt.close()
+            #fig.clf()   
             
-        plt.close()
-        return (likeliness > self.positiveThreshold)
+            return (likeliness > self.positiveThreshold)
+        else:
+            if likeliness > 0.85:
+                plt.pause(10)
+            plt.close()
+            #fig.clf()
+            return (likeliness > 0.85)
+            
+        
+        
 
 def testTamaVision():    
+    os.environ.__setitem__('DISPLAY', ':0.0') 
     tamaVision = TamaVision()
-    tamaVision.findPattern('frame.jpg', 'angel.png')
+    tamaVision.findPattern('frame.jpg', 'child.png')
 
 
 '''

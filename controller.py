@@ -96,11 +96,7 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
       self.careState.to_sleep()
       return   
-    
-    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png'):
-      self.careState.to_undisciplined()
-      return
-    
+
     self.updateTamaStatFrames()
     if self.tamaVision.findPattern('hunger.jpg', 'heart_empty.png'):
       self.careState.to_hungry()
@@ -108,6 +104,11 @@ class TamaController(object):
   
     if self.tamaVision.findPattern('happiness.jpg', 'heart_empty.png'):
       self.careState.to_unhappy()
+      return
+
+    # only check discipline after all other care request have been handled
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png'):
+      self.careState.to_undisciplined()
       return
     
     print('Tamagotchi seems to not need care right now.')
@@ -205,6 +206,8 @@ class TamaController(object):
       self.tamaButtons.pressL()
       self.tamaButtons.pressM()
       self.tamaButtons.pressM()
+      self.tamaButtons.pressR()
+      
 
     if self.careState.state == 'unhappy':
       print('Playing with the Tamagotchi.')
