@@ -4,53 +4,60 @@ import matplotlib.pyplot as plt
 from time import sleep
 from datetime import datetime
 
-from skimage import data
+from skimage import data, exposure, feature
 from skimage.feature import match_template
 import skimage as ski
 from skimage.transform import rescale
+from skimage.filters import threshold_yen
 
 from skimage.io import imread
-from skimage.io import imread_collection
-from skimage import filters
 import os
-
-#os.environ.__setitem__('DISPLAY', ':0.0') 
 
 class TamaVision(object):
     def __init__(self):
-        
-        dirName = 'sprites/*.png'
+        self.thresOffset = 0.02
         self.positiveThreshold = 0.5 # value above this means we've found the pattern
-        self.collection = imread_collection(dirName)
-        #print(self.collection.files[0])
 
-    def preProcess(self, imageFileName, patternFileName):
-        pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True)
-        if patternFileName != 'needs_discipline.png':
-            scaleFactor = 12.6 # scale value found through calibration, first step measure pixels, then trial and error test for best match
-            print('ScaleFactor: ' + str(scaleFactor))
-            pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
+    # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
+    def rescaleSprites(self, spritesFolder, rescaledFolder, scaleFactor):
+        for filename in os.listdir(spritesFolder):
+            image = ski.io.imread(spritesFolder+'/'+filename, as_gray=True)
 
-        image = ski.io.imread(imageFileName, as_gray=True)
-        #thresh = filters.threshold_otsu(image)-0.38
-        #print('Treshold: ' + str(thresh))
-        #binary = image > thresh
-       
-        return image, pattern
+            
+            if filename != ('needs_discipline.png'): #this one is straight captured from the display, doesn't need scaling
+                image = rescale(image, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
+            image = ski.util.img_as_ubyte(image) # needed because otherwise trying to store floats between 0 and 1 in uint formatted png
+            ski.io.imsave(rescaledFolder+'/'+filename, image)
 
     def findPattern(self, imageFileName, patternFileName):
-        image, pattern = self.preProcess(imageFileName, patternFileName)
+        image = ski.io.imread(imageFileName, as_gray=True)
+
+        if patternFileName != 'needs_discipline.png':
+            # crop image
+            image = image[134:341, 99:547]
+
+            # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
+            thresh = threshold_yen(image)
+            image = image > (thresh+self.thresOffset)
+
+        rescaleLive = False
+        if rescaleLive:
+            pattern = ski.io.imread('sprites/' + patternFileName, as_gray=True) 
+            scaleFactor = 12.6
+            print('ScaleFactor: ' + str(scaleFactor))
+            pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0)      
+        else:
+            pattern = ski.io.imread('spritesRescaled/' + patternFileName, as_gray=True)                                                                                              
 
         result = match_template(image, pattern)
+
         ij = np.unravel_index(np.argmax(result), result.shape)
         x, y = ij[::-1]
         likeliness = result[ij]
+        print('\nChecking pattern: ' + patternFileName)
         print('Likeliness template match: ' + str(likeliness))
         
         fig = plt.figure(figsize=(8, 3))
-        now = datetime.now()
-        current_time = datetime.datetime.now()
-        #plt.title(current_time)
         ax1 = plt.subplot(1, 3, 1)
         ax2 = plt.subplot(1, 3, 2)
         ax3 = plt.subplot(1, 3, 3, sharex=ax2, sharey=ax2)
@@ -77,16 +84,39 @@ class TamaVision(object):
         mng = plt.get_current_fig_manager()
         mng.resize(*mng.window.maxsize())
 
-        plt.savefig('visionLog/' + current_time + '.png')
+        now = datetime.now()
+        date_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        plt.savefig('visionLog/' + date_time + patternFileName)
         
-        if likeliness > self.positiveThreshold:
-            plt.show()
+        if patternFileName != 'needs_discipline.png':
+            if likeliness > self.positiveThreshold:
+                plt.pause(10)
+            plt.close()
+            #fig.clf()   
+            
+            return (likeliness > self.positiveThreshold)
+        else:
+            if likeliness > 0.85:
+                plt.pause(10)
+            plt.close()
+            #fig.clf()
+            return (likeliness > 0.85)
+            
         
-        return (likeliness > self.positiveThreshold)
+        
 
 def testTamaVision():    
+    os.environ.__setitem__('DISPLAY', ':0.0') 
     tamaVision = TamaVision()
-    tamaVision.findPattern('frame.jpg', 'angel.png')
+    tamaVision.findPattern('frame.jpg', 'child.png')
 
+
+'''
+# rescale all, manually do this once if you change cam position  
+vis = TamaVision()
+vis.rescaleSprites('sprites', 'spritesRescaled', 12.6)
+'''
 #print("Running vision script!")
 #testTamaVision()
+    
+

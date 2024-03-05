@@ -47,15 +47,25 @@ class TamaController(object):
     self.careState = TamaCareState()
     self.physState = TamaPhysState()
 
-  def getFrame(self):
+  def getFrame(self, fn):
     self.tamaLight.turnOn()
     sleep(1)
-    fn = 'frame.jpg'
     self.tamaCam.getFrameToFile(fn)
     self.tamaLight.turnOff()
-    return fn
   
-  def checkUnhappyHungry(self):
+  def updateTamaStatFrames(self):
+    self.tamaButtons.pressL_nTimes(6)
+    self.tamaButtons.pressM()
+    self.getFrame('weight_age.jpg')
+    self.tamaButtons.pressL()
+    self.getFrame('discipline.jpg')
+    self.tamaButtons.pressL()    
+    self.getFrame('hunger.jpg')
+    self.tamaButtons.pressL()
+    self.getFrame('happiness.jpg')
+    self.tamaButtons.pressR()
+    
+
     unhappy = False
     hungry = False
     return unhappy, hungry
@@ -64,8 +74,9 @@ class TamaController(object):
     needsDiscipline = False
     return needsDiscipline
 
-  def getState(self):
-    fn = self.getFrame()
+  def updateStates(self):
+    fn = 'frame.jpg'
+    self.getFrame(fn)
 
     print('Physical state before: ' + self.physState.state)
     self.detectPhysState(fn)
@@ -77,27 +88,32 @@ class TamaController(object):
 
   def detectCareState(self, frameFileName):
     if self.tamaVision.findPattern(frameFileName, 'poop1.png'):
-      self.physState.to_poopy()  
+      self.careState.to_poopy()  
       return    
     if self.tamaVision.findPattern(frameFileName, 'sick.png'):
-      self.physState.to_sick()  
+      self.careState.to_sick()  
       return
     if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
-      self.physState.to_sleep()
+      self.careState.to_sleep()
       return   
-    
-    # implement discipline check, hungry check and unhappy checks here
+
+    self.updateTamaStatFrames()
+    if self.tamaVision.findPattern('hunger.jpg', 'heart_empty.png'):
+      self.careState.to_hungry()
+      return
+  
+    if self.tamaVision.findPattern('happiness.jpg', 'heart_empty.png'):
+      self.careState.to_unhappy()
+      return
+
+    # only check discipline after all other care request have been handled
     if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png'):
-      self.physState.to_undisciplined()
+      self.careState.to_undisciplined()
       return
     
-    unhappy, hungry = self.checkUnhappyHungry()
-    if unhappy:
-      self.physState.to_unhappy()
-      return
-    if hungry:
-      self.physState.to_hungry()
-      return
+    print('Tamagotchi seems to not need care right now.')
+    self.careState.to_idle()
+    return
     
   def detectPhysState(self, frameFileName):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
@@ -160,9 +176,63 @@ class TamaController(object):
         return
     print('Somehow, no physical state found...')
 
-  def handleState(self, state):
-    print('handleState fnc')
+  def handleState(self):
+    if self.physState.state == 'egg':
+      print('Waiting for egg to hatch...')
+      return
+
+    if self.physState.state == 'dead':
+      print('The Tamagotchi is now an angel...')
+      return
+    
+    if self.careState.state == 'idle':
+      print('The Tamagotchi is happy and does not need any care')
+      return
+    
+    if self.careState.state == 'poopy':
+      print('Cleaning the Tamagotchi.')
+      self.tamaButtons.pressL_nTimes(5)
+      self.tamaButtons.pressM()
+      sleep(3)
+    
+    if self.careState.state == 'sick':
+      print('Healing the Tamagotchi.')
+      self.tamaButtons.pressL_nTimes(4)
+      self.tamaButtons.pressM()
+      sleep(3)
+
+    if self.careState.state == 'hungry':
+      print('Feeding the Tamagotchi.')
+      self.tamaButtons.pressL()
+      self.tamaButtons.pressM()
+      self.tamaButtons.pressM()
+      self.tamaButtons.pressR()
+      
+
+    if self.careState.state == 'unhappy':
+      print('Playing with the Tamagotchi.')
+      self.tamaButtons.pressL_nTimes(3)
+      self.tamaButtons.pressM()
+      sleep(3)
+      for i in range(10):
+        self.tamaButtons.pressL()
+        sleep(1)
+      self.tamaButtons.pressR()
+
+    if self.careState.state == 'sleeping':
+      print('Turning light off for the Tamagotchi.')
+      self.tamaButtons.pressL_nTimes(2)
+      self.tamaButtons.pressM()
+      self.tamaButtons.pressL()
+      self.tamaButtons.pressM()
+
+    if self.careState.state == 'undisciplined':
+      print('Disciplining the Tamagotchi.')
+      self.tamaButtons.pressL_nTimes(7)
+      self.tamaButtons.pressM()
 
   def getAndHandleState(self):
-    state = self.getState()
-    self.handleState(state)
+    self.updateStates()
+    self.tamaLight.turnOn()
+    self.handleState()
+    self.tamaLight.turnOff()
