@@ -1,12 +1,14 @@
 from transitions import Machine
 from time import sleep
+import time
 
 class TamaCareState(object):
   careStates = ['idle', 'sleeping', 'sick', 'poopy',
              'unhappy', 'hungry', 'undisciplined']
   
   def __init__(self):
-    self.machine = Machine(model=self, states=self.careStates, initial = 'idle')
+    self.machine = Machine(model=self, states=self.careStates, initial = 'unknown')
+    
 
     self.machine.add_transition('play', 'unhappy', 'idle')
     self.machine.add_transition('need_play', 'idle', 'unhappy')
@@ -38,6 +40,7 @@ class TamaPhysState(object):
       self.machine.add_transition('die', '*', 'dead')
 
 class TamaController(object):
+  careInterval = 120
   def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLog, tamaLight):
     self.tamaCam = tamaCam
     self.tamaVision = tamaVision
@@ -46,6 +49,7 @@ class TamaController(object):
     self.tamaLight = tamaLight
     self.careState = TamaCareState()
     self.physState = TamaPhysState()
+    self.lastCare = time.time() - TamaController.careInterval # Subtract this so you can do the first check straight away
 
   def getFrame(self, fn):
     self.tamaLight.turnOn()
@@ -82,6 +86,14 @@ class TamaController(object):
     self.detectPhysState(fn)
     print('Physical state after: ' + self.physState.state)
 
+    if self.physState.state == 'egg':
+      print('Not checking care state, because tama is egg')
+      return
+
+    if self.physState.state == 'dead':
+      print('Not checking care state, because tama is dead')
+      return
+
     print('Care state before: ' + self.careState.state)
     self.detectCareState(fn)
     print('Care state after: ' + self.careState.state)
@@ -96,6 +108,7 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
       self.careState.to_sleep()
       return   
+
 
     self.updateTamaStatFrames()
     if self.tamaVision.findPattern('hunger.jpg', 'heart_empty.png'):
@@ -119,7 +132,7 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  
         return    
-    if self.physState.state == 'unknown':
+    if self.physState.state in ['unknown', 'dead']:
       if self.tamaVision.findPattern(frameFileName, 'egg.png'):
         self.physState.to_egg()
         return
@@ -185,6 +198,10 @@ class TamaController(object):
       print('The Tamagotchi is now an angel...')
       return
     
+    if self.physState.state == 'unknown':
+      print('Tamagotchi physical form unknown, so we cannot take care of it...')
+      return
+    
     if self.careState.state == 'idle':
       print('The Tamagotchi is happy and does not need any care')
       return
@@ -232,7 +249,8 @@ class TamaController(object):
       self.tamaButtons.pressM()
 
   def getAndHandleState(self):
-    self.updateStates()
-    self.tamaLight.turnOn()
-    self.handleState()
-    self.tamaLight.turnOff()
+    if (time.time() - self.lastCare) > TamaController.careInterval:
+      self.updateStates()
+      self.tamaLight.turnOn()
+      self.handleState()
+      self.tamaLight.turnOff()
