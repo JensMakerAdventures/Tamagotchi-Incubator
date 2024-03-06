@@ -7,7 +7,7 @@ def checkSetDisplay():
     if os.environ.get('DISPLAY','') == '':
         #print('No $DISPLAY env variable, so using :0.0')
         os.environ.__setitem__('DISPLAY', ':0.0')
-#test
+
 class TamaGui():
     def __init__(self, buttonControllerInput):
         checkSetDisplay()

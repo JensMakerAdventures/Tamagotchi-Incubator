@@ -110,9 +110,9 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'sick.png'):
       self.careState.to_sick()  
       return
-    if self.tamaVision.findPattern(frameFileName, 'sleep.png'):
+    if self.tamaVision.findPattern(frameFileName, ['sleep_1.png', 'sleep_2.png']):
       self.careState.to_sleep()
-      return   
+      return
 
     self.updateTamaStatFrames()
 
@@ -129,7 +129,7 @@ class TamaController(object):
       return
 
     # only check discipline after all other care request have been handled
-    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png'):
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThreshold = 0.85):
       self.careState.to_undisciplined()
       return
     
@@ -152,7 +152,7 @@ class TamaController(object):
       if self.tamaVision.findPattern(frameFileName, 'baby_1.png'):
         self.physState.to_baby()
         return
-      if self.tamaVision.findPattern(frameFileName, 'baby_2.png'):
+      if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThreshold = 0.53):
         self.physState.to_baby()
         return
     if self.physState.state in ['unknown', 'baby']:

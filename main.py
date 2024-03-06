@@ -36,7 +36,8 @@ tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tam
 while(True):
     #tamaLight.strobe(False, 5, 0.4)
     #tamaButtons.pressL()
-    if True:                               
+    if True:                     
+        tamaCam.preview()          
         tamaController.getAndHandleState()
     else:
         tamaGui.mainLoop()
