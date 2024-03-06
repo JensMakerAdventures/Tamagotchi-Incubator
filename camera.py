@@ -60,4 +60,4 @@ class TamaCam():
         plt.show()
     
     def preview(self):
-        self.camera.start_preview(fullscreen=False, window = (-100, 10, 480, 640))
+        self.camera.start_preview(fullscreen=False, window = (10, -140, 480, 640))

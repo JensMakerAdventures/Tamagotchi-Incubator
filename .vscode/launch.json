@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         
         {
             "name": "Debug Vision",
@@ -19,6 +20,14 @@
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
+            "console": "integratedTerminal"
+        }
+
+        {
+            "name": "Debug GUI",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "guiTest.py",
             "console": "integratedTerminal"
         }
     ]

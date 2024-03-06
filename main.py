@@ -23,21 +23,9 @@ tamaLog = log.TamaLog()
 tamaLight = light.TamaLight(14)
 tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLog, tamaLight)
 
-
-#buttonController.pressL()
-#buttonController.pressM()
-#buttonController.pressR()
-#tamaCam.calibrate()
-#tamaGui.mainLoop()
-#testString = 'frame.jpg'
-#frame = tamaCam.getFrameToFile(testString)
-#tamaVision.findPattern(testString, 'angel.png')
-
-while(True):
-    #tamaLight.strobe(False, 5, 0.4)
-    #tamaButtons.pressL()
-    if True:                     
-        tamaCam.preview()          
-        tamaController.getAndHandleState()
-    else:
-        tamaGui.mainLoop()
+tamaCam.preview()  
+while(True):            
+    tamaGui.update()
+    if tamaGui.autoMode:
+        tamaController.getAndHandleState(tamaGui.loveMode)
+    

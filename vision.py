@@ -21,7 +21,7 @@ import math
 class TamaVision(object):
     positiveThreshold = 0.40 # value above this means we've found the pattern
     def __init__(self):
-        self.thresOffset = 0.02
+        self.thresOffset = 0.04 # higher means more black pixels
         
 
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
@@ -45,10 +45,13 @@ class TamaVision(object):
         return missingHearts
 
 
-    def findPattern(self, imageFileName, patternFileNames, positiveThreshold = positiveThreshold, onlyCheckThisQuarter = 0):
+    def findPattern(self, imageFileName, patternFileNames, positiveThresholds = positiveThreshold, onlyCheckThisQuarter = 0):
         if not isinstance(patternFileNames, (tuple, list)):
             patternFileNames = [patternFileNames]
-        for patName in patternFileNames:
+        if not isinstance(positiveThresholds, (tuple, list)):
+            positiveThresholds = [positiveThresholds]
+
+        for idx, patName in enumerate(patternFileNames):
             image = ski.io.imread(imageFileName, as_gray=True)
 
             if patName not in ['needs_discipline.png']:
@@ -130,16 +133,21 @@ class TamaVision(object):
 
             fn = 'vision.png'
             plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
-            plt.pause(10)
-            if likeliness > positiveThreshold:
+
+            if len(positiveThresholds) > 1:
+                thres = positiveThresholds[idx]
+            else:
+                thres = positiveThresholds[0]
+
+            if likeliness > thres:
                 plt.pause(10)
-            plt.close()
-            if likeliness > positiveThreshold:
                 shutil.copy(fn, 'visionLog/Found/' + date_time + patName)
                 #plt.savefig('visionLog/Found/' + date_time + patName, bbox_inches = 'tight')
+                plt.close()
                 return True
             else:
                 shutil.copy(fn, 'visionLog/NotFound/' + date_time + patName)
+                plt.close()
                 #plt.savefig('visionLog/NotFound/' + date_time + patName, bbox_inches = 'tight')
         return False
             
@@ -158,7 +166,7 @@ import vision
 vis = vision.TamaVision()
 vis.rescaleSprites('sprites', 'spritesRescaled', 12.6)
 '''
-print("Running vision script!")
-testTamaVision()
+#print("Running vision script!")
+#testTamaVision()
     
 
