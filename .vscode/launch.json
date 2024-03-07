@@ -6,12 +6,13 @@
     "configurations": [
 
 
+
         
         {
             "name": "Debug Vision",
             "type": "debugpy",
             "request": "launch",
-            "program": "vision.py",
+            "program": "testVision.py",
             "console": "integratedTerminal"
         },        
 

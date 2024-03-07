@@ -15,15 +15,15 @@ from skimage.io import imread
 import os
 
 import shutil
-
 import math
+import fasteners
 
 class TamaVision(object):
     positiveThreshold = 0.40 # value above this means we've found the pattern
+    showResult = False
     def __init__(self):
-        self.thresOffset = 0.04 # higher means more black pixels
-        
-
+        self.thresOffset = 0.04 # higher means more black pixels. Normally +0.04 is ok
+    
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
     def rescaleSprites(self, spritesFolder, rescaledFolder, scaleFactor):
         for filename in os.listdir(spritesFolder):
@@ -56,7 +56,7 @@ class TamaVision(object):
 
             if patName not in ['needs_discipline.png']:
                 # crop image
-                image = image[134:341, 99:547]
+                image = image[110:341, 95:570]
 
                 # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
                 thresh = threshold_yen(image)
@@ -132,7 +132,9 @@ class TamaVision(object):
             plt.gca().yaxis.set_major_locator(plt.NullLocator())
 
             fn = 'vision.png'
-            plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
+            lock = fasteners.InterProcessLock(fn)
+            with lock:
+                plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
 
             if len(positiveThresholds) > 1:
                 thres = positiveThresholds[idx]
@@ -140,33 +142,14 @@ class TamaVision(object):
                 thres = positiveThresholds[0]
 
             if likeliness > thres:
-                plt.pause(10)
-                shutil.copy(fn, 'visionLog/Found/' + date_time + patName)
-                #plt.savefig('visionLog/Found/' + date_time + patName, bbox_inches = 'tight')
-                plt.close()
+                if self.showResult:
+                    plt.pause(10)
+                    plt.close()
+                shutil.copy(fn, 'visionLog/Found/' + date_time + patName)   
                 return True
             else:
                 shutil.copy(fn, 'visionLog/NotFound/' + date_time + patName)
-                plt.close()
-                #plt.savefig('visionLog/NotFound/' + date_time + patName, bbox_inches = 'tight')
-        return False
-            
-        
-        
-
-def testTamaVision():    
-    os.environ.__setitem__('DISPLAY', ':0.0') 
-    tamaVision = TamaVision()
-    tamaVision.findPattern('frame.jpg', 'child.png')
-
-
-'''
-# rescale all, manually do this once if you change cam position, manually clear the folder first
-import vision
-vis = vision.TamaVision()
-vis.rescaleSprites('sprites', 'spritesRescaled', 12.6)
-'''
-#print("Running vision script!")
-#testTamaVision()
-    
+                if self.showResult:
+                    plt.close()
+        return False   
 

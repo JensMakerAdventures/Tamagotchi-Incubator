@@ -22,11 +22,15 @@ from skimage.filters import try_all_threshold
 os.environ.__setitem__('DISPLAY', ':0.0') 
 
 
-th = image > 0.6
+
 
 imageFileName = 'frame.jpg'
 image = ski.io.imread(imageFileName, as_gray=True)
-image = image[134:341, 99:547]
+image = image[110:341, 95:570]
+fig, ax = try_all_threshold(image, figsize=(10, 8), verbose=False)
+plt.show()
+
+th = image > 0.6
 
 thresh = threshold_yen(image)
 binary = image > thresh
@@ -40,8 +44,7 @@ ax1.imshow(binary, cmap=plt.cm.gray)
 plt.pause(5)
 plt.close()
 
-#fig, ax = try_all_threshold(image, figsize=(10, 8), verbose=False)
-#plt.show()
+
 
 import numpy as np
 from scipy import ndimage as ndi

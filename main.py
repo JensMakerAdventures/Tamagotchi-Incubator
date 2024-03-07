@@ -7,6 +7,8 @@ import log
 import os
 import light
 from time import sleep
+import threading
+
 
 # This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
 os.environ.__setitem__('DISPLAY', ':0.0') 
@@ -23,9 +25,15 @@ tamaLog = log.TamaLog()
 tamaLight = light.TamaLight(14)
 tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLog, tamaLight)
 
+def threadedMainLogic():
+    while True:
+        if tamaGui.autoMode:
+            tamaController.getAndHandleState(tamaGui.loveMode)
+
 tamaCam.preview()  
-while(True):            
-    tamaGui.update()
-    if tamaGui.autoMode:
-        tamaController.getAndHandleState(tamaGui.loveMode)
+while(True):
+    t = threading.Thread(target=threadedMainLogic)
+    t.start()
+    tamaGui.mainloop()
+    
     

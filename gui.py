@@ -1,6 +1,8 @@
 import os
 from tkinter import *
 from PIL import ImageTk,Image
+from time import sleep
+import fasteners
 
 def checkSetDisplay():
     # check if display env variable is ok
@@ -56,42 +58,54 @@ class TamaGui():
         bLoveMode.place(x=10,y=530)
         bManualMode = Button(self.gui, text ="MURDER", command = self.setMurderMode, font = fontBig)
         bManualMode.place(x=200,y=530)
-        
-    def update(self):
-        imVision = Image.open('vision.png')
-        w, h = imVision.size
-        imVision = imVision.resize((int(w), int(h)))
-        imVision = ImageTk.PhotoImage(imVision)
-        label1 = Label(image=imVision)
-        label1.place(x=500, y=20)
-                
-        imStats = Image.open('weight_age.jpg')
-        w, h = imStats.size
-        imStats = imStats.resize((int(w/3), int(h/3)))
-        imStats = ImageTk.PhotoImage(imStats)
-        label1 = Label(image=imStats)
-        label1.place(x=800, y=20)
 
-        imHungry = Image.open('hunger.jpg')
-        w, h = imHungry.size
-        imHungry = imHungry.resize((int(w/3), int(h/3)))
-        imHungry = ImageTk.PhotoImage(imHungry)
-        label1 = Label(image=imHungry)
-        label1.place(x=800, y=200)
+        lVision = Label()
+        lVision.place(x=500, y=20)
+        lStats = Label()
+        lStats.place(x=800, y=20)
+        lHungry = Label()
+        lHungry.place(x=800, y=200)
+        lHappy = Label()
+        lHappy.place(x=800, y=380)
+        lDiscipline = Label()
+        lDiscipline.place(x=800, y=560)
 
-        imHappy = Image.open('happiness.jpg')
-        w, h = imHappy.size
-        imHappy = imHappy.resize((int(w/3), int(h/3)))
-        imHappy = ImageTk.PhotoImage(imHappy)
-        label1 = Label(image=imHappy)
-        label1.place(x=800, y=380)
+        self.text_widget = Text(self.gui, wrap="word", width=41, height=4, font = fontSmall)
+        self.text_widget.place(x=10, y=610)
 
-        imDiscipline = Image.open('discipline.jpg')
-        w, h = imDiscipline.size
-        imDiscipline = imDiscipline.resize((int(w/3), int(h/3)))
-        imDiscipline = ImageTk.PhotoImage(imDiscipline)
-        label1 = Label(image=imDiscipline)
-        label1.place(x=800, y=560)
+        # format: label object, filename, scale x, scale y
+        self.images = ((lVision, 'vision.png', 1, 1), 
+                       (lStats, 'weight_age.jpg', 0.33, 0.33),
+                       (lHungry, 'hunger.jpg', 0.33, 0.33),
+                       (lHappy, 'happiness.jpg', 0.33, 0.33),
+                       (lDiscipline, 'discipline.jpg', 0.33, 0.33),
+        )
 
+    def updateContent(self):
+        # update images
+        for image in self.images:
+            fn = image[1]
+            lock = fasteners.InterProcessLock(fn)
+            with lock:
+                im = Image.open(fn)
+            w, h = im.size
+            im = im.resize((int(w*image[2]), int(h*image[3])))
+            im = ImageTk.PhotoImage(im)
+            image[0].configure(image = im)
+            image[0].image = im # keep a reference!
 
-        self.gui.update()
+        # update text
+        file_path='log.txt'
+        lock = fasteners.InterProcessLock(file_path)
+        with lock:            
+            with open(file_path, 'r') as file:
+                content = file.readlines()
+                content = content[-4:] 
+                self.text_widget.delete(1.0, END)  # Clear previous content
+                self.text_widget.insert(END, "".join(content))
+
+        self.gui.after(1000, self.updateContent)
+
+    def mainloop(self):
+        self.updateContent()
+        self.gui.mainloop()

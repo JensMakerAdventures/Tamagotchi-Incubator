@@ -1,6 +1,7 @@
 from transitions import Machine
 from time import sleep
 import time
+import fasteners
 
 class TamaCareState(object):
   careStates = ['idle', 'sleeping', 'sick', 'poopy',
@@ -64,19 +65,13 @@ class TamaController(object):
   def updateTamaStatFrames(self):
     self.tamaButtons.pressL_nTimes(6)
     self.tamaButtons.pressM()
-    self.getFrame('weight_age.jpg')
-    self.tamaButtons.pressL()
-    self.getFrame('discipline.jpg')
-    self.tamaButtons.pressL()    
-    self.getFrame('hunger.jpg')
-    self.tamaButtons.pressL()
-    self.getFrame('happiness.jpg')
-    self.tamaButtons.pressR()
-    
 
-    unhappy = False
-    hungry = False
-    return unhappy, hungry
+    fileNames = ('weight_age.jpg', 'discipline.jpg', 'hunger.jpg', 'happiness.jpg')
+    for fn in fileNames:
+      lock = fasteners.InterProcessLock(fn)
+      with lock:
+          self.getFrame(fn)
+      self.tamaButtons.pressL()
 
   def checkNeedsDiscipline(self):
     needsDiscipline = False
