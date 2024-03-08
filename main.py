@@ -31,17 +31,16 @@ buttonR = servo_buttons.TamaButton("right", 2, 0, 90)
 tamaButtons = servo_buttons.ButtonController(buttonL, buttonM, buttonR)
 tamaGui = gui.TamaGui(tamaButtons, lock)
 tamaCam = camera.TamaCam()
-# Threshold offset: higher means more black pixels. Normally +0.02 is ok
+# Threshold offset: higher means more black pixels. Normally +0.01 is ok
 # positiveThreshold: 0.40 is good, little valse positives. value above this means we've found the pattern
-tamaVision = vision.TamaVision(0.40, 0.02, False, lock)
+tamaVision = vision.TamaVision(0.40, 0.01, False, lock)
 tamaLight = light.TamaLight(14)
-tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 240, lock) # care interval 240s
+tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 30, lock) # care interval is the magic number
 
 logger.log(logging.CRITICAL, 'Robotic Tamagotchi Caretaker started!')
 def threadedMainLogic():
     while True:
-        if tamaGui.autoMode:
-            tamaController.getAndHandleState(tamaGui.loveMode)
+        tamaController.getAndHandleState(tamaGui.autoMode, tamaGui.loveMode)
 
 tamaCam.preview()  
 while(True):

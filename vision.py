@@ -52,6 +52,23 @@ class TamaVision(object):
             else:
                 return missingHearts
         return missingHearts
+    
+    def snackSelected(self, fn):
+        image = ski.io.imread(fn, as_gray=True)
+        image = image[110:341, 95:570] # crop screen
+        thresh = threshold_yen(image)
+        image = image > (thresh+self.thresOffset)
+        
+        image = image[225:341, 95:190] # crop to arrow position for snack selection
+        avg = np.average(image)
+        fig = plt.figure(figsize=(5, 3))
+        ax1 = plt.subplot(1,1)
+        ax1.imshow(image, cmap=plt.cm.gray)
+        print(avg)
+        if avg > 0.5:
+            return True
+        else:
+            return False
 
 
     def findPattern(self, imageFileName, patternFileNames, positiveThresholds = None, onlyCheckThisQuarter = 0):

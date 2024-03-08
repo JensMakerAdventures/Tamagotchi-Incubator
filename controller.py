@@ -59,10 +59,11 @@ class TamaController(object):
 
   def getFrame(self, fn):
     self.tamaLight.turnOn()
-    sleep(1)
+    sleep(0.5)
     with self.lock:
       self.tamaCam.getFrameToFile(fn)
     self.tamaLight.turnOff()
+    sleep(0.3)
   
   def updateTamaStatFrames(self):
     self.tamaButtons.pressL_nTimes(6)
@@ -97,7 +98,7 @@ class TamaController(object):
     self.amountHunger = self.tamaVision.findMissingHearts('hunger.jpg', 'heart_empty.png')
     self.amountUnhappy = self.tamaVision.findMissingHearts('happiness.jpg', 'heart_empty.png')
     logger.log(logging.WARNING,('Hunger: Found ' + str(self.amountHunger) + ' hearts missing'))
-    logger.log(logging.WARNING,('Happiness: Found ' + str(self.amountHunger) + ' hearts missing'))
+    logger.log(logging.WARNING,('Happiness: Found ' + str(self.amountUnhappy) + ' hearts missing'))
     if self.amountHunger > 0:
       self.careState.to_hungry()
       return
@@ -277,7 +278,13 @@ class TamaController(object):
     if self.amountHunger > 0:
         logger.log(logging.WARNING,'Feeding the Tamagotchi.')
         self.tamaButtons.pressL()
-        self.tamaButtons.pressM()
+        self.tamaButtons.pressM() #open food menu
+
+        fn = 'frame.jpg'
+        self.getFrame(fn)
+        if self.tamaVision.snackSelected(): # select nutricious food, our tama must not eat snacks
+          self.tamaButtons.pressL()
+
         while self.amountHunger > 0:
           self.tamaButtons.pressM()
           sleep(7)
@@ -291,7 +298,7 @@ class TamaController(object):
       self.tamaButtons.pressM()
       sleep(5)
       while self.amountUnhappy > 0:
-        for j in range(3): #always play 3 games, since you might not win every one
+        for j in range(2): #always play 2 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
             sleep(5)
@@ -318,54 +325,78 @@ class TamaController(object):
 
   def feedSnack(self):
     logger.log(logging.WARNING,'Killing Tamagotchi. Just one more snack...')
-    self.tamaButtons.pressL()
+    fn = 'frame.jpg'
+    self.getFrame(fn)
+    if not self.tamaVision.snackSelected():
+      self.tamaButtons.pressL()
     self.tamaButtons.pressM()
     self.tamaButtons.pressL()
     self.tamaButtons.pressM()
     sleep(7)
+    self.tamaButtons.pressR()
+    self.tamaButtons.pressR()
 
-  def getAndHandleState(self, loveMode):
-    logger.log(logging.WARNING, 'Automatic control loop running...')
-    if loveMode:
-      self.prevLoveMode = True
-      timeSinceLastCare = int(time.time() - self.lastCare)
-      logger.log(logging.WARNING,'Seconds since last care: ' + str(timeSinceLastCare))
-      if timeSinceLastCare > self.careInterval:
-        self.lastCare = time.time()
-        fn = 'frame.jpg'
-        self.getFrame(fn)
-        self.detectPhysState(fn)
+  def checkIfTamaIsDead(self, fn):
+    if self.tamaVision.findPattern(fn, 'angel.png'):
+      self.physState.to_dead() 
+      return True 
+    else:
+      return False
 
-        logger.log(logging.WARNING,'Detected physical state is: ' + self.physState.state)
+  def getAndHandleState(self, autoMode, loveMode):
+    if autoMode:
+      logger.log(logging.WARNING, 'Automatic control loop running...')
+      if loveMode:
+        if self.prevLoveMode == False:
+          logger.log(logging.WARNING,'Good thing you disabled murder mode. You are still a bad person for even trying it...')
+        timeSinceLastCare = int(time.time() - self.lastCare)
+        #logger.log(logging.WARNING,'Seconds since last care: ' + str(timeSinceLastCare))
+        if timeSinceLastCare > self.careInterval:
+          self.lastCare = time.time()
+          fn = 'frame.jpg'
+          self.getFrame(fn)
+          self.detectPhysState(fn)
 
-        if self.physState.state == 'egg':
-          logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
-          return
+          logger.log(logging.WARNING,'Detected physical state is: ' + self.physState.state)
 
-        if self.physState.state == 'dead':
-          logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
-          return
+          if self.physState.state == 'egg':
+            logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
+            return
 
-        self.detectCareState(fn)
-        logger.log(logging.WARNING,'Care state: ' + self.careState.state)
+          if self.physState.state == 'dead':
+            logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
+            return
 
-        self.tamaLight.turnOn()
-        self.handleState()
-        self.tamaLight.turnOff()
-      else:
-        sleep(30)
-    else: #kill the tamagotchi by feeding it snacks over and over
-      if self.prevLoveMode == True:
-        self.prevLoveMode = False
-        self.snackKillCounter = 0
+          self.detectCareState(fn)
+          logger.log(logging.WARNING,'Care state: ' + self.careState.state)
 
-      fn = 'frame.jpg'
-      self.getFrame(fn)
-      self.detectPhysState(fn)
+          self.tamaLight.turnOn()
+          self.handleState()
+          self.tamaLight.turnOff()
+        else:
+          sleep(30)
+      else: #kill the tamagotchi by feeding it snacks over and over
+        if self.prevLoveMode == True:
+          logger.log(logging.WARNING,'Tamagotchi murder mode activated. You monster.')
+          self.snackKillCounter = 0
+          fn = 'frame.jpg'
+          self.getFrame(fn)
+          self.detectPhysState( fn)
 
-      if self.physState != 'dead':
-        self.feedSnack()
-        self.SnackKillCounter += 1
-        logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
-      else:
-        logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')
+        if self.physState not in ['dead']:
+          fn = 'frame.jpg'
+          self.getFrame(fn)
+          self.checkIfTamaIsDead(fn)
+        else:
+          logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')
+
+        if self.physState != 'dead':
+          self.feedSnack()
+          self.SnackKillCounter += 1
+          logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
+
+      self.prevLoveMode = loveMode   
+          
+    
+    
+      
