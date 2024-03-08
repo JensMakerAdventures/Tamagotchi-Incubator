@@ -20,10 +20,12 @@ class TamaCam():
     def setup(self):
         self.camera.zoom = (0.36, 0.16, 0.3, 0.3)
         self.camera.resolution = 'vga'
-        self.camera.framerate = 2
-        self.camera.shutter_speed = 212339
+        #self.camera.framerate = 2
+        self.camera.framerate = 10
+        #self.camera.shutter_speed = 212339
+        self.camera.shutter_speed = 100000
         self.camera.saturation = -100
-        self.camera.brightness = 80
+        self.camera.brightness = 90
         self.camera.contrast = 100
         self.camera.sharpness = 100
         self.camera.video_denoise = 'False'

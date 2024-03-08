@@ -17,8 +17,7 @@ os.environ.__setitem__('DISPLAY', ':0.0')
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d %H:%M")
 #filename=('logs/' + str(date_time) + '.log')
-#set logging to logging.INFO to get only main updates
-logging.basicConfig(level=logging.INFO, format='%(message)s',
+logging.basicConfig(level=logging.WARNING, format='%(message)s',
                     datefmt='%H:%M',
                     handlers=[logging.FileHandler('logs/' + str(date_time) + '.log'), logging.StreamHandler()])
 logger = logging.getLogger('Tamagotchi')
@@ -37,8 +36,6 @@ tamaCam = camera.TamaCam()
 tamaVision = vision.TamaVision(0.40, 0.02, False, lock)
 tamaLight = light.TamaLight(14)
 tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 240, lock) # care interval 240s
-
-
 
 logger.log(logging.CRITICAL, 'Robotic Tamagotchi Caretaker started!')
 def threadedMainLogic():

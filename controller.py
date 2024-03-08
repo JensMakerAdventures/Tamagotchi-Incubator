@@ -72,6 +72,8 @@ class TamaController(object):
     for fn in fileNames:
       self.getFrame(fn)
       self.tamaButtons.pressL()
+    self.tamaButtons.pressR()
+    self.tamaButtons.pressR()
 
   def checkNeedsDiscipline(self):
     needsDiscipline = False

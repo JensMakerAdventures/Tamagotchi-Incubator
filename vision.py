@@ -46,7 +46,7 @@ class TamaVision(object):
 
     def findMissingHearts(self, imageFileName, patternFileName):
         missingHearts = 0
-        for i in range(3):
+        for i in range(4):
             if self.findPattern(imageFileName, patternFileName, onlyCheckThisQuarter = (4-i)): #work from right to left until we find no more hearts missing
                 missingHearts = missingHearts + 1
             else:
@@ -80,10 +80,10 @@ class TamaVision(object):
                 quarter = math.floor(width/4)
                 min = ((i-1)*quarter)
                 max = i*quarter
-                min -= 0.5 * quarter # compensate for not perfect quarters
+                min = int(min - 0.5 * quarter) # compensate for not perfect quarters
                 if min < 0:
                     min = 0
-                max += 0.5 * quarter
+                max = int(max + 0.5 * quarter)
                 if max > width:
                     max = width
                 image = image[:, min:max]
@@ -158,11 +158,12 @@ class TamaVision(object):
             else:
                 thres = positiveThresholds[0]
 
-            #logger.log(logging.INFO,('\nChecking pattern: ' + patName))
-            #logger.log(logging.INFO,'Likeliness template match: ' + "{:.2f}".format(likeliness))
+            #logger.log(logging.WARNING,('\nChecking pattern: ' + patName))
+            #logger.log(logging.WARNING,'Likeliness template match: ' + "{:.2f}".format(likeliness))
 
             if likeliness > thres:
-                logger.log(logging.INFO,(patName + ' found with ' + str(int(likeliness*100)) + '% likeliness'))
+                if patName not in ['heart_empty.png']:
+                    logger.log(logging.WARNING,(patName + ' found with ' + str(int(likeliness*100)) + '% likeliness'))
                 if self.showResult:
                     plt.pause(10)
                     plt.close()
