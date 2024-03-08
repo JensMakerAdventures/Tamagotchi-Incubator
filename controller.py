@@ -1,8 +1,9 @@
 from transitions import Machine
 from time import sleep
 import time
-import fasteners
 import logging
+
+logger = logging.getLogger('Tamagotchi')
 
 class TamaCareState(object):
   careStates = ['idle', 'sleeping', 'sick', 'poopy',
@@ -11,7 +12,6 @@ class TamaCareState(object):
   def __init__(self):
     self.machine = Machine(model=self, states=self.careStates, initial = 'unknown')
     
-
     self.machine.add_transition('play', 'unhappy', 'idle')
     self.machine.add_transition('need_play', 'idle', 'unhappy')
     self.machine.add_transition('eat', 'hungry', 'idle')
@@ -42,8 +42,7 @@ class TamaPhysState(object):
       self.machine.add_transition('die', '*', 'dead')
 
 class TamaController(object):
-  careInterval = 240 
-  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLight):
+  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLight, careInterval, lock):
     self.tamaCam = tamaCam
     self.tamaVision = tamaVision
     self.tamaButtons = tamaButtons
@@ -52,14 +51,17 @@ class TamaController(object):
     self.physState = TamaPhysState()
     self.amountHunger = 0
     self.amountUnhappy = 0
-    self.lastCare = time.time() - TamaController.careInterval - 1 # Subtract this so you can do the first check straight away
+    self.careInterval = careInterval
+    self.lastCare = time.time() - self.careInterval - 1 # Subtract this so you can do the first check straight away
     self.prevLoveMode = True
-    SnackKillCounter = 0
+    self.SnackKillCounter = 0
+    self.lock = lock
 
   def getFrame(self, fn):
     self.tamaLight.turnOn()
     sleep(1)
-    self.tamaCam.getFrameToFile(fn)
+    with self.lock:
+      self.tamaCam.getFrameToFile(fn)
     self.tamaLight.turnOff()
   
   def updateTamaStatFrames(self):
@@ -68,9 +70,7 @@ class TamaController(object):
 
     fileNames = ('weight_age.jpg', 'discipline.jpg', 'hunger.jpg', 'happiness.jpg')
     for fn in fileNames:
-      lock = fasteners.InterProcessLock(fn)
-      with lock:
-          self.getFrame(fn)
+      self.getFrame(fn)
       self.tamaButtons.pressL()
 
   def checkNeedsDiscipline(self):
@@ -78,6 +78,7 @@ class TamaController(object):
     return needsDiscipline
 
   def detectCareState(self, frameFileName):
+    logger.log(logging.WARNING,('Detecting care needs: poop, sickness and sleeping.'))
     if self.tamaVision.findPattern(frameFileName, patternFileNames = ['poop1.png', 'poop2.png']):
       self.careState.to_poopy()
       return    
@@ -88,12 +89,13 @@ class TamaController(object):
       self.careState.to_sleeping()
       return
 
+    logger.log(logging.WARNING,('Retrieving stats: age, hunger, happiness and discipline'))
     self.updateTamaStatFrames()
 
     self.amountHunger = self.tamaVision.findMissingHearts('hunger.jpg', 'heart_empty.png')
     self.amountUnhappy = self.tamaVision.findMissingHearts('happiness.jpg', 'heart_empty.png')
-    print('Hunger: Found ' + str(self.amountHunger) + ' hearts missing')
-    print('Happiness: Found ' + str(self.amountHunger) + ' hearts missing')
+    logger.log(logging.WARNING,('Hunger: Found ' + str(self.amountHunger) + ' hearts missing'))
+    logger.log(logging.WARNING,('Happiness: Found ' + str(self.amountHunger) + ' hearts missing'))
     if self.amountHunger > 0:
       self.careState.to_hungry()
       return
@@ -102,16 +104,19 @@ class TamaController(object):
       self.careState.to_unhappy()
       return
 
+    logger.log(logging.WARNING,('Tamagotchi is OK, does it call for discipline?.'))
     # only check discipline after all other care request have been handled
-    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThreshold = 0.85):
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.85):
+      logger.log(logging.WARNING,('Yes!'))
       self.careState.to_undisciplined()
       return
-    
-    print('Tamagotchi seems to not need care right now.')
+    logger.log(logging.WARNING,('No.'))
+    logger.log(logging.WARNING,'Tamagotchi seems to not need care right now.')
     self.careState.to_idle()
     return
     
   def detectPhysState(self, frameFileName):
+    logger.log(logging.WARNING,'Detecting physical form.')
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  
         return    
@@ -238,38 +243,37 @@ class TamaController(object):
         self.physState.to_adult_secret()
         self.physState.secretAdultType = 'adult_secret_2'
         return
-    print('Somehow, no physical state found...')
+    logger.log(logging.WARNING,'No physical form found...')
 
   def handleState(self):
-    print('handleState(): ')
     if self.physState.state == 'egg':
-      print('Waiting for egg to hatch...')
+      logger.log(logging.WARNING,'Waiting for egg to hatch...')
       return
 
     if self.physState.state == 'dead':
-      print('The Tamagotchi is now an angel...')
+      logger.log(logging.WARNING,'The Tamagotchi is now an angel...')
       return
     
     if self.careState.state == 'idle':
-      print('The Tamagotchi is happy and does not need any care')
+      logger.log(logging.WARNING,'The Tamagotchi is happy and does not need any care')
       return
     
     if self.careState.state == 'poopy':
-      print('Cleaning the Tamagotchi.')
+      logger.log(logging.WARNING,'Cleaning the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(5)
       self.tamaButtons.pressM()
       sleep(5)
       self.tamaButtons.pressR()
     
     if self.careState.state == 'sick':
-      print('Healing the Tamagotchi.')
+      logger.log(logging.WARNING,'Healing the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(4)
       self.tamaButtons.pressM()
       sleep(5)
       self.tamaButtons.pressR()
 
     if self.amountHunger > 0:
-        print('Feeding the Tamagotchi.')
+        logger.log(logging.WARNING,'Feeding the Tamagotchi.')
         self.tamaButtons.pressL()
         self.tamaButtons.pressM()
         while self.amountHunger > 0:
@@ -280,7 +284,7 @@ class TamaController(object):
         self.tamaButtons.pressR()
 
     if self.amountUnhappy > 0:
-      print('Playing with the Tamagotchi.')
+      logger.log(logging.WARNING,'Playing with the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(3)
       self.tamaButtons.pressM()
       sleep(5)
@@ -295,7 +299,7 @@ class TamaController(object):
       self.tamaButtons.pressR()
 
     if self.careState.state == 'sleeping':
-      print('Turning light off for the Tamagotchi.')
+      logger.log(logging.WARNING,'Turning light off for the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(2)
       self.tamaButtons.pressM()
       self.tamaButtons.pressL()
@@ -304,14 +308,14 @@ class TamaController(object):
       self.tamaButtons.pressR()
 
     if self.careState.state == 'undisciplined':
-      print('Disciplining the Tamagotchi.')
+      logger.log(logging.WARNING,'Disciplining the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(7)
       self.tamaButtons.pressM()
       sleep(5)
       self.tamaButtons.pressR()
 
   def feedSnack(self):
-    print('Killing Tamagotchi. Just one more snack...')
+    logger.log(logging.WARNING,'Killing Tamagotchi. Just one more snack...')
     self.tamaButtons.pressL()
     self.tamaButtons.pressM()
     self.tamaButtons.pressL()
@@ -319,29 +323,29 @@ class TamaController(object):
     sleep(7)
 
   def getAndHandleState(self, loveMode):
-    logging.log(logging.CRITICAL, 'Penispenisppenis')
+    logger.log(logging.WARNING, 'Automatic control loop running...')
     if loveMode:
       self.prevLoveMode = True
       timeSinceLastCare = int(time.time() - self.lastCare)
-      print('Seconds since last care: ' + str(timeSinceLastCare))
-      if timeSinceLastCare > TamaController.careInterval:
+      logger.log(logging.WARNING,'Seconds since last care: ' + str(timeSinceLastCare))
+      if timeSinceLastCare > self.careInterval:
         self.lastCare = time.time()
         fn = 'frame.jpg'
         self.getFrame(fn)
         self.detectPhysState(fn)
 
-        print('Physical state: ' + self.physState.state)
+        logger.log(logging.WARNING,'Detected physical state is: ' + self.physState.state)
 
         if self.physState.state == 'egg':
-          print('Not checking care state, because tama is egg')
+          logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
           return
 
         if self.physState.state == 'dead':
-          print('Not checking care state, because tama is dead')
+          logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
           return
 
         self.detectCareState(fn)
-        print('Care state: ' + self.careState.state)
+        logger.log(logging.WARNING,'Care state: ' + self.careState.state)
 
         self.tamaLight.turnOn()
         self.handleState()
@@ -360,6 +364,6 @@ class TamaController(object):
       if self.physState != 'dead':
         self.feedSnack()
         self.SnackKillCounter += 1
-        print('Snacks given: '+ str(self.SnackKillCounter))
+        logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
       else:
-        print('Sweet little Tama is dead. Is this what you wanted??')
+        logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')

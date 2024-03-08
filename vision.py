@@ -17,19 +17,21 @@ import os
 
 import shutil
 import math
-import fasteners
+import logging
+
+logger = logging.getLogger('Tamagotchi')
 
 class TamaVision(object):
-    def __init__(self, positiveThreshold, thresOffset, showResult):
+    def __init__(self, positiveThreshold, thresOffset, showResult, lock):
         self.thresOffset = thresOffset 
         self.positiveThreshold = positiveThreshold
         self.showResult = showResult
+        self.lock = lock
         if showResult:
             matplotlib.use('TkAgg')
         else:
             matplotlib.use('agg')
         
-
     
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
     def rescaleSprites(self, spritesFolder, rescaledFolder, scaleFactor):
@@ -72,11 +74,19 @@ class TamaVision(object):
                 image = image > (thresh+self.thresOffset)
 
             i = onlyCheckThisQuarter
-            if onlyCheckThisQuarter > 0:
+            if i > 0:
                 shape = np.shape(image)
                 width = shape[1]
                 quarter = math.floor(width/4)
-                image = image[:, ((i-1)*quarter):i*quarter]
+                min = ((i-1)*quarter)
+                max = i*quarter
+                min -= 0.5 * quarter # compensate for not perfect quarters
+                if min < 0:
+                    min = 0
+                max += 0.5 * quarter
+                if max > width:
+                    max = width
+                image = image[:, min:max]
 
             rescaleLive = False
             if rescaleLive:
@@ -92,8 +102,6 @@ class TamaVision(object):
             ij = np.unravel_index(np.argmax(result), result.shape)
             x, y = ij[::-1]
             likeliness = result[ij]
-            print('\nChecking pattern: ' + patName)
-            print('Likeliness template match: ' + "{:.2f}".format(likeliness))
             
             fig = plt.figure(figsize=(5, 3))
             gs = GridSpec(3, 1, height_ratios=[1, 2, 2], hspace=0.3) 
@@ -133,6 +141,7 @@ class TamaVision(object):
             now = datetime.now()
             date_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
+            # remove margins and whitespace, somehow this needs so much code
             plt.gca().set_axis_off()
             plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
             hspace = 0, wspace = 0)
@@ -141,8 +150,7 @@ class TamaVision(object):
             plt.gca().yaxis.set_major_locator(plt.NullLocator())
 
             fn = 'vision.png'
-            lock = fasteners.InterProcessLock(fn)
-            with lock:
+            with self.lock:
                 plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
 
             if len(positiveThresholds) > 1:
@@ -150,14 +158,20 @@ class TamaVision(object):
             else:
                 thres = positiveThresholds[0]
 
+            #logger.log(logging.INFO,('\nChecking pattern: ' + patName))
+            #logger.log(logging.INFO,'Likeliness template match: ' + "{:.2f}".format(likeliness))
+
             if likeliness > thres:
+                logger.log(logging.INFO,(patName + ' found with ' + str(int(likeliness*100)) + '% likeliness'))
                 if self.showResult:
                     plt.pause(10)
                     plt.close()
-                shutil.copy(fn, 'visionLog/Found/' + date_time + patName)   
+                with self.lock:
+                    shutil.copy(fn, 'visionLog/Found/' + date_time + patName)   
                 return True
             else:
-                shutil.copy(fn, 'visionLog/NotFound/' + date_time + patName)
+                with self.lock:
+                    shutil.copy(fn, 'visionLog/NotFound/' + date_time + patName)
                 if self.showResult:
                     plt.close()
         return False   
