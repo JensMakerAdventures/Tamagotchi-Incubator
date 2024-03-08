@@ -80,10 +80,10 @@ class TamaVision(object):
                 quarter = math.floor(width/4)
                 min = ((i-1)*quarter)
                 max = i*quarter
-                min = int(min - 0.5 * quarter) # compensate for not perfect quarters
+                min = int(min - 0.21 * quarter) # compensate for not perfect quarters
                 if min < 0:
                     min = 0
-                max = int(max + 0.5 * quarter)
+                max = int(max + 0.21 * quarter)
                 if max > width:
                     max = width
                 image = image[:, min:max]
