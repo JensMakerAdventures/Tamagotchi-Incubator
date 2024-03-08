@@ -2,6 +2,7 @@ from transitions import Machine
 from time import sleep
 import time
 import fasteners
+import logging
 
 class TamaCareState(object):
   careStates = ['idle', 'sleeping', 'sick', 'poopy',
@@ -42,11 +43,10 @@ class TamaPhysState(object):
 
 class TamaController(object):
   careInterval = 240 
-  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLog, tamaLight):
+  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLight):
     self.tamaCam = tamaCam
     self.tamaVision = tamaVision
     self.tamaButtons = tamaButtons
-    self.tamaLog = tamaLog
     self.tamaLight = tamaLight
     self.careState = TamaCareState()
     self.physState = TamaPhysState()
@@ -319,6 +319,7 @@ class TamaController(object):
     sleep(7)
 
   def getAndHandleState(self, loveMode):
+    logging.log(logging.CRITICAL, 'Penispenisppenis')
     if loveMode:
       self.prevLoveMode = True
       timeSinceLastCare = int(time.time() - self.lastCare)

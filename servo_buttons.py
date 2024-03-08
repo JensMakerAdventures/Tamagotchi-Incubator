@@ -34,7 +34,7 @@ class ButtonController:
   def pressLandR(self):
     self.kit.servo[self.buttonL.channel].angle = self.buttonL.activateAngle
     self.kit.servo[self.buttonR.channel].angle = self.buttonR.activateAngle
-    sleep(0.8)
+    sleep(2)
     self.kit.servo[self.buttonL.channel].angle = self.buttonL.retractAngle
     self.kit.servo[self.buttonR.channel].angle = self.buttonR.retractAngle
     sleep(0.7)

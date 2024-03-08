@@ -1,8 +1,14 @@
 import os
 from tkinter import *
+from tkinter.scrolledtext import ScrolledText
 from PIL import ImageTk,Image
 from time import sleep
 import fasteners
+import QueueHandler
+import logging
+import queue
+
+logger = logging.getLogger()
 
 def checkSetDisplay():
     # check if display env variable is ok
@@ -81,6 +87,43 @@ class TamaGui():
                        (lDiscipline, 'discipline.jpg', 0.33, 0.33),
         )
 
+        self.scrolled_text = ScrolledText(self.gui, state='disabled', height=12)
+        self.scrolled_text.grid(row=0, column=0, sticky=(N, S, W, E))
+        self.scrolled_text.configure(font='TkFixedFont')
+        self.scrolled_text.tag_config('INFO', foreground='black')
+        self.scrolled_text.tag_config('DEBUG', foreground='gray')
+        self.scrolled_text.tag_config('WARNING', foreground='orange')
+        self.scrolled_text.tag_config('ERROR', foreground='red')
+        self.scrolled_text.tag_config('CRITICAL', foreground='red', underline=1)
+        # Create a logging handler using a queue
+        self.log_queue = queue.Queue()
+        self.queue_handler = QueueHandler.QueueHandler(self.log_queue)
+        formatter = logging.Formatter('%(asctime)s: %(message)s')
+        self.queue_handler.setFormatter(formatter)
+        logger.addHandler(self.queue_handler)
+        # Start polling messages from the queue
+        self.gui.after(100, self.poll_log_queue)
+
+
+    def displayText(self, record):
+        msg = self.queue_handler.format(record)
+        self.scrolled_text.configure(state='normal')
+        self.scrolled_text.insert(END, msg + '\n', record.levelname)
+        self.scrolled_text.configure(state='disabled')
+        # Autoscroll to the bottom
+        self.scrolled_text.yview(END)
+
+    def poll_log_queue(self):
+        # Check every 100ms if there is a new message in the queue to display
+        while True:
+            try:
+                record = self.log_queue.get(block=False)
+            except queue.Empty:
+                break
+            else:
+                self.displayText(record)
+        self.gui.after(100, self.poll_log_queue)
+
     def updateContent(self):
         # update images
         for image in self.images:
@@ -93,9 +136,9 @@ class TamaGui():
             im = ImageTk.PhotoImage(im)
             image[0].configure(image = im)
             image[0].image = im # keep a reference!
-
+        '''
         # update text
-        file_path='log.txt'
+        file_path=logging.getLoggerClass().root.handlers[0].baseFilename
         lock = fasteners.InterProcessLock(file_path)
         with lock:            
             with open(file_path, 'r') as file:
@@ -103,7 +146,7 @@ class TamaGui():
                 content = content[-4:] 
                 self.text_widget.delete(1.0, END)  # Clear previous content
                 self.text_widget.insert(END, "".join(content))
-
+        '''
         self.gui.after(1000, self.updateContent)
 
     def mainloop(self):

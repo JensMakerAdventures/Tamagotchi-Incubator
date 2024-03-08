@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+import matplotlib
 
 from time import sleep
 from datetime import datetime
@@ -19,10 +20,16 @@ import math
 import fasteners
 
 class TamaVision(object):
-    positiveThreshold = 0.40 # value above this means we've found the pattern
-    showResult = False
-    def __init__(self):
-        self.thresOffset = 0.04 # higher means more black pixels. Normally +0.04 is ok
+    def __init__(self, positiveThreshold, thresOffset, showResult):
+        self.thresOffset = thresOffset 
+        self.positiveThreshold = positiveThreshold
+        self.showResult = showResult
+        if showResult:
+            matplotlib.use('TkAgg')
+        else:
+            matplotlib.use('agg')
+        
+
     
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
     def rescaleSprites(self, spritesFolder, rescaledFolder, scaleFactor):
@@ -45,9 +52,11 @@ class TamaVision(object):
         return missingHearts
 
 
-    def findPattern(self, imageFileName, patternFileNames, positiveThresholds = positiveThreshold, onlyCheckThisQuarter = 0):
+    def findPattern(self, imageFileName, patternFileNames, positiveThresholds = None, onlyCheckThisQuarter = 0):
         if not isinstance(patternFileNames, (tuple, list)):
             patternFileNames = [patternFileNames]
+        if positiveThresholds is None:
+            positiveThresholds = self.positiveThreshold
         if not isinstance(positiveThresholds, (tuple, list)):
             positiveThresholds = [positiveThresholds]
 
