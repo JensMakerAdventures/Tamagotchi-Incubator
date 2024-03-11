@@ -20,8 +20,9 @@ os.environ.__setitem__('DISPLAY', ':0.0')
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d %H:%M")
 #filename=('logs/' + str(date_time) + '.log')
-logging.basicConfig(level=logging.WARNING, format='%(message)s',
-                    datefmt='%H:%M',
+logging.basicConfig(level=logging.WARNING,
+                    format='%(asctime)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
                     handlers=[logging.FileHandler('logs/' + str(date_time) + '.log'), logging.StreamHandler()])
 logger = logging.getLogger('Tamagotchi')
 

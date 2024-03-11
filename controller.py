@@ -311,10 +311,10 @@ class TamaController(object):
       self.tamaButtons.pressM()
       sleep(5)
       while self.amountUnhappy > 0:
-        for j in range(2): #always play 2 games, since you might not win every one
+        for j in range(3): #always play 3 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
-            sleep(4.1) #5 seconds loses most games, 4.1 wins more
+            sleep(4.3) #4.3s is game winning
           sleep(8)
         self.amountUnhappy = self.amountUnhappy - 1
       self.tamaButtons.pressR()

@@ -113,7 +113,8 @@ class TamaGui():
         # Create a logging handler using a queue
         self.log_queue = queue.Queue()
         self.queue_handler = QueueHandler.QueueHandler(self.log_queue)
-        formatter = logging.Formatter('%(message)s')
+        formatter = logging.Formatter("%(asctime)s;%(message)s",
+                              "%H:%M")
         self.queue_handler.setFormatter(formatter)
         logger.addHandler(self.queue_handler)
         # Start polling messages from the queue

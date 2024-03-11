@@ -32,7 +32,7 @@ class TamaVision(object):
         else:
             matplotlib.use('agg')
 
-        self.excludeImages = ['adult', 'teen', 'child', 'baby', 'egg', 'angel', 'asleep', 'sleep_screen']
+        self.excludeImages = ['adult', 'teen', 'child', 'baby', 'egg', 'heart', 'angel', 'asleep', 'sleep_screen']
         
     
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
