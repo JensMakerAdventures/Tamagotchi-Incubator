@@ -55,7 +55,7 @@ class TamaVision(object):
         return missingHearts
     
     def cropImage(self, image):
-        return image[120:370, 95:570]
+        return image[120:370, 65:550]
     
     def mealSelected(self, fn):
         input = ski.io.imread(fn, as_gray=True)
@@ -184,7 +184,8 @@ class TamaVision(object):
             fn = 'vision.png'
             with self.lock:
                 plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
-
+            #thres = 0.1
+            #plt.pause(10)   
             if len(positiveThresholds) > 1:
                 thres = positiveThresholds[idx]
             else:
