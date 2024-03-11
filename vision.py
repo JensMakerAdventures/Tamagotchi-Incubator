@@ -105,6 +105,12 @@ class TamaVision(object):
                 thresh = threshold_yen(image)
                 image = image > (thresh+self.thresOffset)
 
+            else:
+                # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
+                thresh = threshold_yen(image)
+                image = image > (thresh+self.thresOffset)
+                image = image[-150:-1, -150:-1]
+
             i = onlyCheckThisQuarter
             if i > 0:
                 shape = np.shape(image)

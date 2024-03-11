@@ -17,7 +17,6 @@ tamaVision.findPattern('frame.jpg', 'child.png')
 
 '''
 # rescale all, manually do this once if you change cam position, manually clear the folder first
-import vision
-vis = vision.TamaVision()
-vis.rescaleSprites('sprites', 'spritesRescaled', 12.6)
+
+tamaVision.rescaleSprites('sprites', 'spritesRescaled', 12.6)
 '''

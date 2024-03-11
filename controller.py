@@ -57,7 +57,7 @@ class TamaController(object):
     self.prevAutoMode = False
     self.SnackKillCounter = 0
     self.lock = lock
-    self.lightsTurnedOff = False
+    self.lightsTurnedOff = True
 
 
   def getFrame(self, fn):
@@ -92,7 +92,7 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'sick.png'):
       self.careState.to_sick()  
       return
-    if self.tamaVision.findPattern(frameFileName, patternFileNames=['sleep_1.png', 'sleep_2.png'], positiveThresholds = [0.6, 0.6]):
+    if self.tamaVision.findPattern(frameFileName, patternFileNames=['sleep_1.png', 'sleep_2.png'], positiveThresholds = [0.55, 0.55]):
       self.careState.to_sleeping()
       return
 
@@ -114,9 +114,9 @@ class TamaController(object):
       return
 
     # only check discipline after all other care request have been handled
-    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.73): # normal is 0.65-0.70, when detected is 0.75 (@0.02 thres offset)
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.75): # normal is 0.65-0.73, when detected is 0.75 (@0.02 thres offset)
       self.careState.to_undisciplined()
-      logger.log(logging.ERROR,('Tamagotchi needs discipline!'))
+      #logger.log(logging.ERROR,('Tamagotchi needs discipline!'))
       return
     logger.log(logging.WARNING,('Tamagotchi does not need discipline.'))
     
@@ -285,6 +285,8 @@ class TamaController(object):
     if self.careState.state == 'sick':
       logger.log(logging.ERROR,'Healing the Tamagotchi.')
       self.tamaButtons.pressL_nTimes(4)
+      self.tamaButtons.pressM()
+      sleep(5)
       self.tamaButtons.pressM()
       sleep(5)
       self.tamaButtons.pressR()
