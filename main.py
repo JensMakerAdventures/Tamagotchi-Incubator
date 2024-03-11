@@ -19,8 +19,8 @@ os.environ.__setitem__('DISPLAY', ':0.0')
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d %H:%M")
-#filename=('logs/' + str(date_time) + '.log')
-logging.basicConfig(level=logging.WARNING,
+# logging.WARNING contains more info
+logging.basicConfig(level=logging.ERROR,
                     format='%(asctime)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     handlers=[logging.FileHandler('logs/' + str(date_time) + '.log'), logging.StreamHandler()])
@@ -39,12 +39,12 @@ tamaCam = camera.TamaCam()
 # Threshold offset: higher means more black pixels. Normally +0.02 is ok
 # positiveThreshold: 0.40 is good, little valse positives. value above this means we've found the pattern
 tamaVision = vision.TamaVision(0.40, 0.02, False, lock)
-tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 600, lock, False) # care interval is the magic number
+tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 600, lock) # care interval is the magic number
 
 logger.log(logging.CRITICAL, 'Robotic Tamagotchi Caretaker started!')
 def threadedMainLogic():
     while True:
-        tamaController.getAndHandleState(tamaGui.autoMode, tamaGui.loveMode)
+        tamaController.getAndHandleState(tamaGui.autoMode, tamaGui.loveMode, tamaGui.lightAlwaysOn)
 
 tamaCam.preview()  
 while(True):

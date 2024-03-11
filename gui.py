@@ -30,6 +30,8 @@ class TamaGui():
         self.autoMode = False
         self.loveMode = True
 
+        self.lightAlwaysOn = True
+
         self.buildGUI()
 
     def setAutoMode(self):
@@ -50,8 +52,11 @@ class TamaGui():
     def stop_app(self):
         exit()
 
+    def toggle_light_mode(self):
+        self.lightAlwaysOn = not self.lightAlwaysOn
+
     def buildGUI(self):
-        fontLog= ('Helvetica 20')
+        fontLog= ('Helvetica 15')
         fontSmall= ('Helvetica 26')
         fontBig = ('Helvetica 40')
         lButton = Button(self.gui, text ="Push L", command = self.buttonController.pressL, font = fontSmall)
@@ -71,6 +76,9 @@ class TamaGui():
 
         restartButton = Button(self.gui, text ="Stop app", command = self.stop_app, font = fontSmall)
         restartButton.place(x=610,y=520)
+
+        self.saveLightButton = Button(self.gui, text ="Light on mode", command = self.toggle_light_mode, font = fontLog)
+        self.saveLightButton.place(x=630,y=590)
 
         rButton = Button(self.gui, text ="Push R", command = self.buttonController.pressR, font = fontSmall)
         rButton.place(x=280,y=370)
@@ -99,7 +107,7 @@ class TamaGui():
         lDiscipline = Label()
         lDiscipline.place(x=800, y=560)
 
-        self.text_widget = Text(self.gui, wrap="word", width=41, height=7, font = fontLog)
+        self.text_widget = Text(self.gui, wrap="word", width=54, height=9, font = fontLog)
         self.text_widget.place(x=10, y=570)
 
         # format: label object, filename, scale x, scale y
@@ -113,7 +121,7 @@ class TamaGui():
         # Create a logging handler using a queue
         self.log_queue = queue.Queue()
         self.queue_handler = QueueHandler.QueueHandler(self.log_queue)
-        formatter = logging.Formatter("%(asctime)s;%(message)s",
+        formatter = logging.Formatter("%(asctime)s %(message)s",
                               "%H:%M")
         self.queue_handler.setFormatter(formatter)
         logger.addHandler(self.queue_handler)
@@ -155,6 +163,11 @@ class TamaGui():
         else:
             self.bLoveMode.config(bg=self.DefClr)
             self.bMurderMode.config(bg='red')
+
+        if self.lightAlwaysOn:
+            self.saveLightButton.config(bg='green')
+        else:
+            self.saveLightButton.config(bg=self.DefClr)
 
         # update images
         for image in self.images:
