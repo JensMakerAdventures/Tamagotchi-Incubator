@@ -101,16 +101,16 @@ class TamaController(object):
 
     self.amountHunger = self.tamaVision.findMissingHearts('hunger.jpg', 'heart_empty.png')
     self.amountUnhappy = self.tamaVision.findMissingHearts('happiness.jpg', 'heart_empty.png')
-    
-    
+     
     if self.amountHunger > 0:
       logger.log(logging.ERROR,('Hunger: ' + str(self.amountHunger) + ' hearts missing'))
       self.careState.to_hungry()
-      return
   
     if self.amountUnhappy > 0:
       self.careState.to_unhappy()
       logger.log(logging.ERROR,('Happiness: ' + str(self.amountUnhappy) + ' hearts missing'))
+    
+    if (self.amountHunger > 0) or (self.amountUnhappy > 0):
       return
 
     # only check discipline after all other care request have been handled
@@ -315,7 +315,7 @@ class TamaController(object):
         for j in range(3): #always play 3 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
-            sleep(4.3) #4.3s is game winning
+            sleep(4.3) # ok delay wins about half the games, haven't found a better number
           sleep(8)
         self.amountUnhappy = self.amountUnhappy - 1
       self.tamaButtons.pressR()
@@ -367,7 +367,6 @@ class TamaController(object):
         timeSinceLastCare = int(time.time() - self.lastCare)
         #logger.log(logging.WARNING,'Seconds since last care: ' + str(timeSinceLastCare))
         if timeSinceLastCare > self.careInterval:
-          self.lastCare = time.time()
           fn = 'frame.jpg'
           self.getFrame(fn)
           self.detectPhysState(fn)
@@ -376,14 +375,17 @@ class TamaController(object):
 
           if self.physState.state == 'egg':
             logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
+            self.lastCare = time.time()
             return
 
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
+            self.lastCare = time.time()
             return
               
           if self.lightsTurnedOff:
             logger.log(logging.WARNING,'Not checking care needs, tama is asleep...')
+            self.lastCare = time.time()
             return
 
           self.detectCareState(fn)
@@ -393,6 +395,10 @@ class TamaController(object):
           self.handleState()
           if not self.lightAlwaysOn:
             self.tamaLight.turnOff()
+          
+          # only if care state is idle you can reset the caretaking timer, otherwise try again
+          if self.careState.state == 'idle':
+            self.lastCare = time.time()
         else:
           sleep(1)
       else: #kill the tamagotchi by feeding it snacks over and over
