@@ -362,6 +362,7 @@ class TamaController(object):
     self.lightAlwaysOn = lightAlwaysOn
     if autoMode:
       if self.prevAutoMode == False:
+        self.prevAutoMode == True:
         logger.log(logging.ERROR, 'Started automatic care taking.')
       if loveMode:
         if self.prevLoveMode == False:
