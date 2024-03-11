@@ -3,11 +3,10 @@ from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from PIL import ImageTk,Image
 from time import sleep
-import fasteners
 import QueueHandler
 import logging
 import queue
-
+import os
 
 
 logger = logging.getLogger('Tamagotchi')
@@ -19,19 +18,19 @@ def checkSetDisplay():
         os.environ.__setitem__('DISPLAY', ':0.0')
 
 class TamaGui():
-    def __init__(self, buttonControllerInput, lock):
+    def __init__(self, buttonControllerInput, lightController, lock):
         checkSetDisplay()
         self.buttonController = buttonControllerInput
         self.gui = Tk()
         self.gui.attributes('-fullscreen',True)
         self.gui.title("Tamagotchi-Incubator")
-        self.buildGUI()
         self.lock = lock
-
+        self.lightController = lightController
         self.DefClr = self.gui.cget("bg")
-
         self.autoMode = False
         self.loveMode = True
+
+        self.buildGUI()
 
     def setAutoMode(self):
         self.autoMode = True
@@ -44,7 +43,13 @@ class TamaGui():
 
     def setMurderMode(self):
         self.loveMode = False
+
+    def shutdown(self):
+        os.system('sudo shutdown -r now')
         
+    def stop_app(self):
+        exit()
+
     def buildGUI(self):
         fontLog= ('Helvetica 20')
         fontSmall= ('Helvetica 26')
@@ -54,6 +59,18 @@ class TamaGui():
 
         mButton = Button(self.gui, text ="Push M", command = self.buttonController.pressM, font = fontSmall)
         mButton.place(x=140,y=370)
+
+        lightOnButton = Button(self.gui, text ="Light On", command = self.lightController.turnOn, font = fontSmall)
+        lightOnButton.place(x=610,y=370)
+
+        lightOffButton = Button(self.gui, text ="Light Off", command = self.lightController.turnOff, font = fontSmall)
+        lightOffButton.place(x=610,y=420)
+
+        shutdownButton = Button(self.gui, text ="Shutdown", command = self.shutdown, font = fontSmall)
+        shutdownButton.place(x=610,y=470)
+
+        restartButton = Button(self.gui, text ="Stop app", command = self.stop_app, font = fontSmall)
+        restartButton.place(x=610,y=520)
 
         rButton = Button(self.gui, text ="Push R", command = self.buttonController.pressR, font = fontSmall)
         rButton.place(x=280,y=370)

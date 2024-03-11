@@ -20,5 +20,4 @@ class TamaLight(object):
         GPIO.output(self.lightPin, GPIO.HIGH)
 
     def turnOff(self):
-        pass
-        #GPIO.output(self.lightPin, GPIO.LOW)
+        GPIO.output(self.lightPin, GPIO.LOW)

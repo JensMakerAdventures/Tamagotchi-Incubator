@@ -26,7 +26,7 @@ class TamaCareState(object):
     self.machine.add_transition('discipline', 'undisciplined', 'idle')
 
 class TamaPhysState(object):
-  physStates = ['unknown', 'egg', 'baby', 'child', 'teen', 'adult', 
+  physStates = ['unknown', 'egg', 'asleep', 'baby', 'child', 'teen', 'adult', 
                       'adult_secret', 'dead']
   teenType = 'none'
   adultType = 'none'
@@ -42,7 +42,7 @@ class TamaPhysState(object):
       self.machine.add_transition('die', '*', 'dead')
 
 class TamaController(object):
-  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLight, careInterval, lock):
+  def __init__(self, tamaCam, tamaVision, tamaButtons, tamaLight, careInterval, lock, saveLight):
     self.tamaCam = tamaCam
     self.tamaVision = tamaVision
     self.tamaButtons = tamaButtons
@@ -57,13 +57,16 @@ class TamaController(object):
     self.prevAutoMode = False
     self.SnackKillCounter = 0
     self.lock = lock
+    self.turnOffLightWhenNotNeeded = saveLight
+    self.lightsTurnedOff = False
 
   def getFrame(self, fn):
     self.tamaLight.turnOn()
     sleep(0.5)
     with self.lock:
       self.tamaCam.getFrameToFile(fn)
-    self.tamaLight.turnOff()
+    if self.turnOffLightWhenNotNeeded:
+      self.tamaLight.turnOff()
     sleep(0.3)
   
   def updateTamaStatFrames(self):
@@ -108,13 +111,14 @@ class TamaController(object):
       self.careState.to_unhappy()
       return
 
-    logger.log(logging.WARNING,('Tamagotchi is OK, does it call for discipline?.'))
     # only check discipline after all other care request have been handled
-    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.85):
+    if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.7): # normal is 0.65, when detected is 0.75 (@0.02 thres offset)
       logger.log(logging.WARNING,('Yes!'))
       self.careState.to_undisciplined()
+      logger.log(logging.WARNING,('Tamagotchi needs discipline!'))
       return
-    logger.log(logging.WARNING,('No.'))
+    logger.log(logging.WARNING,('Tamagotchi does not need discipline.'))
+    
     logger.log(logging.WARNING,'Tamagotchi seems to not need care right now.')
     self.careState.to_idle()
     return
@@ -124,8 +128,14 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  
         return    
-    #self.physState.to_child()
-    #return
+    
+    if self.lightsTurnedOff:
+      if self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png']):
+        self.physState.to_asleep()  
+        return
+      else:
+        self.lightsTurnedOff = False
+
     if self.physState.state in ['unknown', 'dead']:
       if self.tamaVision.findPattern(frameFileName, 'egg_1.png'):
         self.physState.to_egg()
@@ -159,7 +169,7 @@ class TamaController(object):
         self.physState.to_teen()
         self.physState.teenType = 'teen1'
         return
-      if self.tamaVision.findPattern(frameFileName, 'teen2_1.png'):
+      if self.tamaVision.findPattern(frameFileName, 'teen2_1.png', positiveThresholds = 0.50):
         self.physState.to_teen()
         self.physState.teenType = 'teen2'
         return
@@ -318,6 +328,7 @@ class TamaController(object):
       self.tamaButtons.pressM()
       sleep(4)
       self.tamaButtons.pressR()
+      self.lightsTurnedOff = True
 
     if self.careState.state == 'undisciplined':
       logger.log(logging.WARNING,'Disciplining the Tamagotchi.')
@@ -368,15 +379,20 @@ class TamaController(object):
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
             return
+              
+          if self.lightsTurnedOff:
+            logger.log(logging.WARNING,'Not checking care needs, tama is asleep...')
+            return
 
           self.detectCareState(fn)
           logger.log(logging.WARNING,'Care state: ' + self.careState.state)
 
           self.tamaLight.turnOn()
           self.handleState()
-          self.tamaLight.turnOff()
+          if self.turnOffLightWhenNotNeeded:
+            self.tamaLight.turnOff()
         else:
-          sleep(30)
+          sleep(1)
       else: #kill the tamagotchi by feeding it snacks over and over
         if self.prevLoveMode == True or self.prevAutoMode == False:
           logger.log(logging.WARNING,'Tamagotchi murder mode activated. You monster.')

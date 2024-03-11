@@ -31,6 +31,8 @@ class TamaVision(object):
             matplotlib.use('TkAgg')
         else:
             matplotlib.use('agg')
+
+        self.excludeImages = ['adult', 'teen', 'child', 'baby', 'egg', 'angel', 'asleep', 'sleep_screen']
         
     
     # 12.6x scale value found through calibration, first step measure pixels, then trial and error test for best match
@@ -52,12 +54,15 @@ class TamaVision(object):
                 return missingHearts
         return missingHearts
     
+    def cropImage(self, image):
+        return image[120:370, 95:570]
+    
     def mealSelected(self, fn):
         input = ski.io.imread(fn, as_gray=True)
-        cropped = input[110:341, 95:570] # crop screen
+        cropped = self.cropImage(input) # crop screen
         thresh = threshold_yen(cropped)
         thresd = cropped > (thresh+self.thresOffset)
-        selected = thresd[0:120, 0:100] # crop to arrow position for snack selection
+        selected = thresd[0:130, 0:100] # crop to arrow position for snack selection
         ''' # if you run below, you will be too late to select the right option...
         
         fig = plt.figure(figsize=(5, 3))
@@ -94,7 +99,7 @@ class TamaVision(object):
 
             if patName not in ['needs_discipline.png']:
                 # crop image
-                image = image[110:341, 95:570]
+                image = self.cropImage(image)
 
                 # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
                 thresh = threshold_yen(image)
@@ -196,6 +201,8 @@ class TamaVision(object):
                 with self.lock:
                     shutil.copy(fn, 'visionLog/Found/' + date_time + patName) 
                 plt.close()  
+                if not any(ele in patName for ele in self.excludeImages):
+                    shutil.copy(fn, 'visionLog/Interesting/' + date_time + patName) 
                 return True
             else:
                 with self.lock:

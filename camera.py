@@ -18,7 +18,7 @@ class TamaCam():
         self.setup()
 
     def setup(self):
-        self.camera.zoom = (0.36, 0.16, 0.3, 0.3)
+        self.camera.zoom = (0.36, 0.19, 0.3, 0.3) #values found through calibration, in our case width and height size MUST be 0.3, or recalibrate pixel sizes too for vision
         self.camera.resolution = 'vga'
         #self.camera.framerate = 2
         self.camera.framerate = 5
@@ -39,7 +39,7 @@ class TamaCam():
         self.camera.capture(filename)
 
     def calibrate(self):
-        self.camera.zoom = (0.01, 0.01, 0.99, 0.99)
+        self.camera.zoom = (0.01, 0.01, 0.99, 0.99) 
         self.getFrameToFile('fullFrame.jpg')
         self.getFrameToFile('fullFrame.jpg')
         self.getFrameToFile('fullFrame.jpg')
