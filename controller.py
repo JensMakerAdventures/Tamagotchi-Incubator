@@ -54,6 +54,7 @@ class TamaController(object):
     self.careInterval = careInterval
     self.lastCare = time.time() - self.careInterval - 1 # Subtract this so you can do the first check straight away
     self.prevLoveMode = True
+    self.prevAutoMode = False
     self.SnackKillCounter = 0
     self.lock = lock
 
@@ -123,6 +124,8 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  
         return    
+    self.physState.to_child()
+    return
     if self.physState.state in ['unknown', 'dead']:
       if self.tamaVision.findPattern(frameFileName, 'egg_1.png'):
         self.physState.to_egg()
@@ -282,7 +285,7 @@ class TamaController(object):
 
         fn = 'frame.jpg'
         self.getFrame(fn)
-        if self.tamaVision.snackSelected(): # select nutricious food, our tama must not eat snacks
+        if not self.tamaVision.mealSelected(fn): # select nutricious food, our tama must not eat snacks
           self.tamaButtons.pressL()
 
         while self.amountHunger > 0:
@@ -323,29 +326,28 @@ class TamaController(object):
       sleep(5)
       self.tamaButtons.pressR()
 
-  def feedSnack(self):
-    logger.log(logging.WARNING,'Killing Tamagotchi. Just one more snack...')
+  def checkIfTamaIsDead(self):
     fn = 'frame.jpg'
     self.getFrame(fn)
-    if not self.tamaVision.snackSelected():
-      self.tamaButtons.pressL()
-    self.tamaButtons.pressM()
-    self.tamaButtons.pressL()
-    self.tamaButtons.pressM()
-    sleep(7)
-    self.tamaButtons.pressR()
-    self.tamaButtons.pressR()
-
-  def checkIfTamaIsDead(self, fn):
     if self.tamaVision.findPattern(fn, 'angel.png'):
       self.physState.to_dead() 
       return True 
     else:
+      logger.log(logging.WARNING,'Tamagotchi is not dead yet.')
       return False
+    
+  def feedSnack(self):
+    self.tamaButtons.pressM()
+    self.SnackKillCounter += 1
+    logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
+    sleep(1)
+    self.tamaButtons.pressL()
+
 
   def getAndHandleState(self, autoMode, loveMode):
     if autoMode:
-      logger.log(logging.WARNING, 'Automatic control loop running...')
+      if self.prevAutoMode == False:
+        logger.log(logging.WARNING, 'Automatic control enabled...')
       if loveMode:
         if self.prevLoveMode == False:
           logger.log(logging.WARNING,'Good thing you disabled murder mode. You are still a bad person for even trying it...')
@@ -381,22 +383,29 @@ class TamaController(object):
           self.snackKillCounter = 0
           fn = 'frame.jpg'
           self.getFrame(fn)
-          self.detectPhysState( fn)
-
-        if self.physState not in ['dead']:
-          fn = 'frame.jpg'
-          self.getFrame(fn)
-          self.checkIfTamaIsDead(fn)
-        else:
-          logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')
+          self.detectPhysState(fn)
 
         if self.physState != 'dead':
-          self.feedSnack()
-          self.SnackKillCounter += 1
-          logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
+          self.tamaButtons.pressL()
+          self.tamaButtons.pressM()
+
+          fn = 'frame.jpg'
+          self.getFrame(fn)
+          if self.tamaVision.mealSelected(fn):
+            self.tamaButtons.pressL()
+          
+          i = 0
+          while self.physState not in ['dead']:
+            self.feedSnack()
+            i = i + 1
+            if i > 10:
+              self.checkIfTamaIsDead()
+              i = 0
+            
+          logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')
 
       self.prevLoveMode = loveMode   
-          
+    self.prevAutoMode = autoMode      
     
     
       

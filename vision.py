@@ -37,8 +37,7 @@ class TamaVision(object):
     def rescaleSprites(self, spritesFolder, rescaledFolder, scaleFactor):
         for filename in os.listdir(spritesFolder):
             image = ski.io.imread(spritesFolder+'/'+filename, as_gray=True)
-
-            
+        
             if filename != ('needs_discipline.png'): #this one is straight captured from the display, doesn't need scaling
                 image = rescale(image, scaleFactor, anti_aliasing = True, order=0) # nearest neighbour prevents blur
             image = ski.util.img_as_ubyte(image) # needed because otherwise trying to store floats between 0 and 1 in uint formatted png
@@ -53,19 +52,28 @@ class TamaVision(object):
                 return missingHearts
         return missingHearts
     
-    def snackSelected(self, fn):
-        image = ski.io.imread(fn, as_gray=True)
-        image = image[110:341, 95:570] # crop screen
-        thresh = threshold_yen(image)
-        image = image > (thresh+self.thresOffset)
+    def mealSelected(self, fn):
+        input = ski.io.imread(fn, as_gray=True)
+        cropped = input[110:341, 95:570] # crop screen
+        thresh = threshold_yen(cropped)
+        thresd = cropped > (thresh+self.thresOffset)
+        selected = thresd[0:120, 0:100] # crop to arrow position for snack selection
+        ''' # if you run below, you will be too late to select the right option...
         
-        image = image[225:341, 95:190] # crop to arrow position for snack selection
-        avg = np.average(image)
         fig = plt.figure(figsize=(5, 3))
-        ax1 = plt.subplot(1,1)
-        ax1.imshow(image, cmap=plt.cm.gray)
+        ax1 = plt.subplot(1,4,1)
+        ax1.imshow(input, cmap=plt.cm.gray)
+        ax2 = plt.subplot(1,4,2)
+        ax2.imshow(cropped, cmap=plt.cm.gray)
+        ax3 = plt.subplot(1,4,3)
+        ax3.imshow(thresd, cmap=plt.cm.gray)
+        ax3 = plt.subplot(1,4,4)
+        ax3.imshow(selected, cmap=plt.cm.gray)
+        plt.savefig('smalldick.png', bbox_inches = 'tight', pad_inches = 0)
+        '''
+        avg = np.average(selected)
         print(avg)
-        if avg > 0.5:
+        if avg <0.85:
             return True
         else:
             return False
