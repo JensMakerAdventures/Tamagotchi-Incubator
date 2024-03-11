@@ -33,7 +33,7 @@ tamaGui = gui.TamaGui(tamaButtons, lock)
 tamaCam = camera.TamaCam()
 # Threshold offset: higher means more black pixels. Normally +0.01 is ok
 # positiveThreshold: 0.40 is good, little valse positives. value above this means we've found the pattern
-tamaVision = vision.TamaVision(0.40, 0.01, False, lock)
+tamaVision = vision.TamaVision(0.40, 0.02, False, lock)
 tamaLight = light.TamaLight(14)
 tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 30, lock) # care interval is the magic number
 

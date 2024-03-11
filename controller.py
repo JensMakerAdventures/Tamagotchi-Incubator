@@ -83,7 +83,7 @@ class TamaController(object):
 
   def detectCareState(self, frameFileName):
     logger.log(logging.WARNING,('Detecting care needs: poop, sickness and sleeping.'))
-    if self.tamaVision.findPattern(frameFileName, patternFileNames = ['poop1.png', 'poop2.png']):
+    if self.tamaVision.findPattern(frameFileName, patternFileNames = ['poop1.png', 'poop2.png'], positiveThresholds = [0.6, 0.6]):
       self.careState.to_poopy()
       return    
     if self.tamaVision.findPattern(frameFileName, 'sick.png'):
@@ -124,8 +124,8 @@ class TamaController(object):
     if self.tamaVision.findPattern(frameFileName, 'angel.png'):
         self.physState.to_dead()  
         return    
-    self.physState.to_child()
-    return
+    #self.physState.to_child()
+    #return
     if self.physState.state in ['unknown', 'dead']:
       if self.tamaVision.findPattern(frameFileName, 'egg_1.png'):
         self.physState.to_egg()
@@ -134,10 +134,10 @@ class TamaController(object):
         self.physState.to_egg()
         return
     if self.physState.state in ['unknown', 'egg']:
-      if self.tamaVision.findPattern(frameFileName, 'baby_1.png'):
+      if self.tamaVision.findPattern(frameFileName, 'baby_1.png', positiveThresholds = 0.50):
         self.physState.to_baby()
         return
-      if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThresholds = 0.53):
+      if self.tamaVision.findPattern(frameFileName, 'baby_2.png'):
         self.physState.to_baby()
         return
     if self.physState.state in ['unknown', 'baby']:
@@ -304,7 +304,7 @@ class TamaController(object):
         for j in range(2): #always play 2 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
-            sleep(5)
+            sleep(4.1) #5 seconds loses most games, 4.1 wins more
           sleep(8)
         self.amountUnhappy = self.amountUnhappy - 1
       self.tamaButtons.pressR()
@@ -340,7 +340,7 @@ class TamaController(object):
     self.tamaButtons.pressM()
     self.SnackKillCounter += 1
     logger.log(logging.WARNING,'Snacks given: '+ str(self.SnackKillCounter))
-    sleep(1)
+    sleep(0.5)
     self.tamaButtons.pressL()
 
 
@@ -378,30 +378,25 @@ class TamaController(object):
         else:
           sleep(30)
       else: #kill the tamagotchi by feeding it snacks over and over
-        if self.prevLoveMode == True:
+        if self.prevLoveMode == True or self.prevAutoMode == False:
           logger.log(logging.WARNING,'Tamagotchi murder mode activated. You monster.')
-          self.snackKillCounter = 0
-          fn = 'frame.jpg'
-          self.getFrame(fn)
-          self.detectPhysState(fn)
+          self.SnackKillCounter = 0
+          self.checkIfTamaIsDead()
 
-        if self.physState != 'dead':
-          self.tamaButtons.pressL()
-          self.tamaButtons.pressM()
-
-          fn = 'frame.jpg'
-          self.getFrame(fn)
-          if self.tamaVision.mealSelected(fn):
+          if self.physState != 'dead':
             self.tamaButtons.pressL()
-          
-          i = 0
-          while self.physState not in ['dead']:
-            self.feedSnack()
-            i = i + 1
-            if i > 10:
-              self.checkIfTamaIsDead()
-              i = 0
-            
+            self.tamaButtons.pressM()
+
+            fn = 'frame.jpg'
+            self.getFrame(fn)
+            if self.tamaVision.mealSelected(fn):
+              self.tamaButtons.pressL()
+
+        if self.physState not in ['dead']:
+          self.feedSnack()
+          if (self.SnackKillCounter % 40 == 0):
+            self.checkIfTamaIsDead()
+        else:
           logger.log(logging.WARNING,'Sweet little Tama is dead. Is this what you wanted??')
 
       self.prevLoveMode = loveMode   

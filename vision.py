@@ -72,10 +72,12 @@ class TamaVision(object):
         plt.savefig('smalldick.png', bbox_inches = 'tight', pad_inches = 0)
         '''
         avg = np.average(selected)
-        print(avg)
+        #print(avg)
         if avg <0.85:
+            logger.log(logging.WARNING,('Vision: Meal food option seems selected.'))
             return True
         else:
+            logger.log(logging.WARNING,('Vision: Snack food option seems selected.'))
             return False
 
 
@@ -190,15 +192,14 @@ class TamaVision(object):
                 if patName not in ['heart_empty.png']:
                     logger.log(logging.WARNING,(patName + ' found with ' + str(int(likeliness*100)) + '% likeliness'))
                 if self.showResult:
-                    plt.pause(10)
-                    plt.close()
+                    plt.pause(10)               
                 with self.lock:
-                    shutil.copy(fn, 'visionLog/Found/' + date_time + patName)   
+                    shutil.copy(fn, 'visionLog/Found/' + date_time + patName) 
+                plt.close()  
                 return True
             else:
                 with self.lock:
                     shutil.copy(fn, 'visionLog/NotFound/' + date_time + patName)
-                if self.showResult:
-                    plt.close()
+                plt.close()
         return False   
 

@@ -8,6 +8,8 @@ import QueueHandler
 import logging
 import queue
 
+
+
 logger = logging.getLogger('Tamagotchi')
 
 def checkSetDisplay():
@@ -25,6 +27,8 @@ class TamaGui():
         self.gui.title("Tamagotchi-Incubator")
         self.buildGUI()
         self.lock = lock
+
+        self.DefClr = self.gui.cget("bg")
 
         self.autoMode = False
         self.loveMode = True
@@ -57,15 +61,15 @@ class TamaGui():
         lAndRButton = Button(self.gui, text ="Push L&R", command = self.buttonController.pressLandR, font = fontSmall)
         lAndRButton.place(x=420,y=370)
 
-        bAutoMode = Button(self.gui, text ="AUTOMATIC", command = self.setAutoMode, font = fontBig)
-        bAutoMode.place(x=10,y=425)
-        bManualMode = Button(self.gui, text ="MANUAL", command = self.setManualMode, font = fontBig)
-        bManualMode.place(x=360,y=425)
+        self.bAutoMode = Button(self.gui, text ="AUTOMATIC", command = self.setAutoMode, font = fontBig)
+        self.bAutoMode.place(x=10,y=425)
+        self.bManualMode = Button(self.gui, text ="MANUAL", command = self.setManualMode, font = fontBig)
+        self.bManualMode.place(x=360,y=425)
         
-        bLoveMode = Button(self.gui, text ="LOVE", command = self.setLoveMode, font = fontBig)
-        bLoveMode.place(x=10,y=500)
-        bManualMode = Button(self.gui, text ="MURDER", command = self.setMurderMode, font = fontBig)
-        bManualMode.place(x=200,y=500)
+        self.bLoveMode = Button(self.gui, text ="LOVE", command = self.setLoveMode, font = fontBig)
+        self.bLoveMode.place(x=10,y=500)
+        self.bMurderMode = Button(self.gui, text ="MURDER", command = self.setMurderMode, font = fontBig)
+        self.bMurderMode.place(x=200,y=500)
 
         lVision = Label()
         lVision.place(x=500, y=20)
@@ -119,6 +123,21 @@ class TamaGui():
         self.gui.after(100, self.poll_log_queue)
 
     def updateContent(self):
+        # update button colors
+        if self.autoMode:
+            self.bAutoMode.config(bg='green')
+            self.bManualMode.config(bg=self.DefClr)
+        else:
+            self.bAutoMode.config(bg=self.DefClr)
+            self.bManualMode.config(bg='red')
+
+        if self.loveMode:
+            self.bLoveMode.config(bg='green')
+            self.bMurderMode.config(bg=self.DefClr)
+        else:
+            self.bLoveMode.config(bg=self.DefClr)
+            self.bMurderMode.config(bg='red')
+
         # update images
         for image in self.images:
             fn = image[1]
