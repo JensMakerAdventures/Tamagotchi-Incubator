@@ -69,7 +69,7 @@ class TamaController(object):
       self.tamaLight.turnOff()
     sleep(0.3)
   
-  def updateTamaStatFrames(self):
+  def updateTamaStatsAndDiscipline(self):
     self.tamaButtons.pressL_nTimes(6)
     self.tamaButtons.pressM()
 
@@ -78,11 +78,9 @@ class TamaController(object):
       self.getFrame(fn)
       self.tamaButtons.pressL()
     self.tamaButtons.pressR()
-    self.tamaButtons.pressR()
-
-  def checkNeedsDiscipline(self):
-    needsDiscipline = False
-    return needsDiscipline
+    #self.tamaButtons.pressR() don't fully close so we can go discipline the tama straight after
+    self.tamaButtons.pressL()
+    self.tamaButtons.pressM() # always discipline just in case
 
   def detectCareState(self, frameFileName):
     logger.log(logging.WARNING,('Detecting care needs: poop, sickness and sleeping.'))
@@ -97,7 +95,8 @@ class TamaController(object):
       return
 
     logger.log(logging.WARNING,('Retrieving stats: age, hunger, happiness and discipline'))
-    self.updateTamaStatFrames()
+    self.updateTamaStatsAndDiscipline()
+
 
     self.amountHunger = self.tamaVision.findMissingHearts('hunger.jpg', 'heart_empty.png')
     self.amountUnhappy = self.tamaVision.findMissingHearts('happiness.jpg', 'heart_empty.png')
@@ -113,13 +112,15 @@ class TamaController(object):
     if (self.amountHunger > 0) or (self.amountUnhappy > 0):
       return
 
+    ''' auto discipline, so no checking
     # only check discipline after all other care request have been handled
     if self.tamaVision.findPattern(frameFileName, 'needs_discipline.png', positiveThresholds = 0.75): # normal is 0.65-0.73, when detected is 0.75 (@0.02 thres offset)
       self.careState.to_undisciplined()
       #logger.log(logging.ERROR,('Tamagotchi needs discipline!'))
       return
     logger.log(logging.WARNING,('Tamagotchi does not need discipline.'))
-    
+    '''
+
     logger.log(logging.WARNING,'Tamagotchi seems to not need care right now.')
     self.careState.to_idle()
     return
@@ -314,7 +315,7 @@ class TamaController(object):
       self.tamaButtons.pressM()
       sleep(5)
       while self.amountUnhappy > 0:
-        for j in range(3): #always play 3 games, since you might not win every one
+        for j in range(2): #always play 2 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
             sleep(4.3) # ok delay wins about half the games, haven't found a better number
@@ -362,7 +363,7 @@ class TamaController(object):
     self.lightAlwaysOn = lightAlwaysOn
     if autoMode:
       if self.prevAutoMode == False:
-        self.prevAutoMode == True:
+        self.prevAutoMode = True
         logger.log(logging.ERROR, 'Started automatic care taking.')
       if loveMode:
         if self.prevLoveMode == False:
