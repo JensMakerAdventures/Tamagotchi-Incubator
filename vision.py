@@ -111,6 +111,10 @@ class TamaVision(object):
                 image = image > (thresh+self.thresOffset)
                 image = image[-150:-1, -150:-1]
 
+            #if patName in ['poop1.png', 'poop2.png', 'sick.png']:
+            #    # specific crop for poop so baby doesn't get recognized as poop
+                
+
             i = onlyCheckThisQuarter
             if i > 0:
                 shape = np.shape(image)
