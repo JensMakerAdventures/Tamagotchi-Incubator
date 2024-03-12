@@ -81,6 +81,8 @@ class TamaController(object):
     #self.tamaButtons.pressR() don't fully close so we can go discipline the tama straight after
     self.tamaButtons.pressL()
     self.tamaButtons.pressM() # always discipline just in case
+    sleep(5)
+    self.tamaButtons.pressR()
 
   def detectCareState(self, frameFileName):
     logger.log(logging.WARNING,('Detecting care needs: poop, sickness and sleeping.'))
