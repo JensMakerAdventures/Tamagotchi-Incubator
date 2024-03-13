@@ -65,7 +65,7 @@ class TamaGui():
         lButton.place(x=10,y=370)
 
         mButton = Button(self.gui, text ="Push M", command = self.buttonController.pressM, font = fontSmall)
-        mButton.place(x=140,y=370)
+        mButton.place(x=143,y=370)
 
         lightOnButton = Button(self.gui, text ="Light On", command = self.lightController.turnOn, font = fontSmall)
         lightOnButton.place(x=610,y=370)
@@ -79,28 +79,28 @@ class TamaGui():
         restartButton = Button(self.gui, text ="Stop app", command = self.stop_app, font = fontSmall)
         restartButton.place(x=610,y=520)
 
-        self.saveLightButton = Button(self.gui, text ="Light on mode", command = self.toggle_light_mode, font = fontLog)
-        self.saveLightButton.place(x=470,y=510)
+        self.saveLightButton = Button(self.gui, text ="Light on \nmode", command = self.toggle_light_mode, font = ('Helvetica 18'))
+        self.saveLightButton.place(x=485,y=500)
 
         rButton = Button(self.gui, text ="Push R", command = self.buttonController.pressR, font = fontSmall)
-        rButton.place(x=280,y=370)
+        rButton.place(x=283,y=370)
 
         lAndRButton = Button(self.gui, text ="Push L&R", command = self.buttonController.pressLandR, font = fontSmall)
-        lAndRButton.place(x=420,y=370)
+        lAndRButton.place(x=422,y=370)
 
         self.bAutoMode = Button(self.gui, text ="AUTOMATIC", command = self.setAutoMode, font = fontBig)
         self.bAutoMode.place(x=10,y=425)
         self.bManualMode = Button(self.gui, text ="MANUAL", command = self.setManualMode, font = fontBig)
-        self.bManualMode.place(x=360,y=425)
+        self.bManualMode.place(x=355,y=425)
         
         self.bLoveMode = Button(self.gui, text ="LOVE", command = self.setLoveMode, font = fontBig)
         self.bLoveMode.place(x=10,y=500)
         self.bMurderMode = Button(self.gui, text ="MURDER", command = self.setMurderMode, font = fontBig)
-        self.bMurderMode.place(x=200,y=500)
+        self.bMurderMode.place(x=205,y=500)
 
         self.textStats = Label(self.gui, 
-                        text ='Stats: ', font= ('Helvetica 20'), justify="left")
-        self.textStats.place(x=630, y=580)
+                        text ='Stats: ', font= ('Helvetica 22'), justify="left")
+        self.textStats.place(x=630, y=590)
 
         lVision = Label()
         lVision.place(x=500, y=20)
@@ -114,17 +114,17 @@ class TamaGui():
         lDiscipline.place(x=800, y=560)
 
         lEgg = Label()
-        lEgg.place(x=530, y=550)
+        lEgg.place(x=530, y=570)
         lBaby = Label()
-        lBaby.place(x=530, y=585)
+        lBaby.place(x=545, y=600)
         lChild = Label()
-        lChild.place(x=530, y=620)
+        lChild.place(x=530, y=630)
         lTeen = Label()
-        lTeen.place(x=530, y=655)
+        lTeen.place(x=530, y=660)
         lAdult = Label()
         lAdult.place(x=530, y=690)
         lAdultsecret = Label()
-        lAdultsecret.place(x=530, y=725)
+        lAdultsecret.place(x=530, y=720)
 
         self.text_widget = Text(self.gui, wrap="word", width=44, height=9, font = fontLog)
         self.text_widget.place(x=10, y=570)
@@ -135,12 +135,12 @@ class TamaGui():
                        (lHungry, 'hunger.jpg', 0.33, 0.33),
                        (lHappy, 'happiness.jpg', 0.33, 0.33),
                        (lDiscipline, 'discipline.jpg', 0.33, 0.33),
-                       (lEgg, 'states/egg.png', 0.33, 0.33), 
-                       (lBaby, 'states/baby.png', 0.33, 0.33),
-                       (lChild, 'states/child.png', 0.33, 0.33),
-                       (lTeen, 'states/teen.png', 0.33, 0.33),
-                       (lAdult, 'states/adult.png', 0.33, 0.33),
-                       (lAdultsecret, 'states/adultsecret.png', 0.33, 0.33)
+                       (lEgg, 'states/egg.png', 0.3, 0.3), 
+                       (lBaby, 'states/baby.png', 0.3, 0.3),
+                       (lChild, 'states/child.png', 0.3, 0.3),
+                       (lTeen, 'states/teen.png', 0.3, 0.3),
+                       (lAdult, 'states/adult.png', 0.3, 0.3),
+                       (lAdultsecret, 'states/adultsecret.png', 0.3, 0.3)
         )
 
         # Create a logging handler using a queue
@@ -207,12 +207,11 @@ class TamaGui():
         with open(fn, 'r') as in_file:
             clean_ = sum(line5.count("Cleaning") for line5 in in_file)
 
-        self.textStats.config(text=('Stats: ' + 
-                                    '\nMeals: '+str(feed_) +
-                                    '\nCured: '+str(heal_) +
-                                    '\nPlayed: '+str(play_)+
-                                    '\nSlept: '+str(sleep_)+
-                                    '\nCleaned :'+str(clean_)))
+        self.textStats.config(text=('Meals: '+str(feed_)+'x' +
+                                    '\nCured: '+str(heal_) +'x' +
+                                    '\nPlayed: '+str(play_)+'x' +
+                                    '\nSlept: '+str(sleep_)+'x' +
+                                    '\nCleaned: '+str(clean_)+'x'))
 
 
         # update images
@@ -223,6 +222,10 @@ class TamaGui():
                 im = Image.open(fn)
             w, h = im.size
             im = im.resize((int(w*image[2]), int(h*image[3])))
+
+            if fn in ['weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg']:
+                im = im.crop([int(w/6), int(h/4), int(w*5/6), int(h*3/4)])
+
             im = ImageTk.PhotoImage(im)
             image[0].configure(image = im)
             image[0].image = im # keep a reference!

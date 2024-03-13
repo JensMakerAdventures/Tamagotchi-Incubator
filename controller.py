@@ -152,9 +152,9 @@ class TamaController(object):
       if self.tamaVision.findPattern(frameFileName, 'baby_1.png', positiveThresholds = 0.5): 
         self.physState.to_baby()
         return
-      if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThresholds = 0.5): #otherwise poop = baby
-        self.physState.to_baby()
-        return
+      #if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThresholds = 0.5): #baby2 won't work
+      #  self.physState.to_baby()
+      #  return
     if self.physState.state in ['unknown', 'baby']:
       if self.tamaVision.findPattern(frameFileName, 'child_1.png'):
           self.physState.to_child()
@@ -247,7 +247,7 @@ class TamaController(object):
         self.physState.to_adult()
         self.physState.teenType = 'adult6'
         return
-    if self.physState.state in ['unknown', 'adult']:
+    if self.physState.state in ['adult']:
       if self.tamaVision.findPattern(frameFileName, 'adult_secret_1_1.png'):
         self.physState.to_adult_secret()
         self.physState.secretAdultType = 'adult_secret_1'
@@ -395,7 +395,8 @@ class TamaController(object):
             time.sleep(5*60) # wait 5 minutes, then the egg is hatched. Then we can go look for the baby.
             self.physState.to_baby()
             with self.lock:
-              shutil.copy('spritesRescaled/baby_1.png', 'states/baby.png') 
+              shutil.copy('spritesRescaled/baby_1.png', 'states/baby.png')
+            self.getFrame(fn)
 
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')

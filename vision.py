@@ -96,20 +96,11 @@ class TamaVision(object):
 
         for idx, patName in enumerate(patternFileNames):
             image = ski.io.imread(imageFileName, as_gray=True)
+            image = self.cropImage(image)
 
-            if patName not in ['needs_discipline.png']:
-                # crop image
-                image = self.cropImage(image)
-
-                # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
-                thresh = threshold_yen(image)
-                image = image > (thresh+self.thresOffset)
-
-            else:
-                # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
-                thresh = threshold_yen(image)
-                image = image > (thresh+self.thresOffset)
-                image = image[-150:-1, -150:-1]
+            # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
+            thresh = threshold_yen(image)
+            image = image > (thresh+self.thresOffset)
 
             if patName in ['am.png', 'pm.png']: #these symbols appear on the left
                 shape = np.shape(image)
@@ -121,8 +112,8 @@ class TamaVision(object):
                 width = shape[1]
                 image = image[:, int(width*0.6):width]
 
-            i = onlyCheckThisQuarter
-            if i > 0:
+            i = onlyCheckThisQuarter 
+            if i > 0: # for hearts checking divide screen into 4 parts
                 shape = np.shape(image)
                 width = shape[1]
                 quarter = math.floor(width/4)
@@ -136,14 +127,7 @@ class TamaVision(object):
                     max = width
                 image = image[:, min:max]
 
-            rescaleLive = False
-            if rescaleLive:
-                pattern = ski.io.imread('sprites/' + patName, as_gray=True) 
-                scaleFactor = 12.6
-                print('ScaleFactor: ' + str(scaleFactor))
-                pattern = rescale(pattern, scaleFactor, anti_aliasing = True, order=0)      
-            else:
-                pattern = ski.io.imread('spritesRescaled/' + patName, as_gray=True)                                                                                              
+            pattern = ski.io.imread('spritesRescaled/' + patName, as_gray=True)                                                                                              
 
             result = match_template(image, pattern)
 
@@ -200,6 +184,7 @@ class TamaVision(object):
             fn = 'vision.png'
             with self.lock:
                 plt.savefig(fn, bbox_inches = 'tight', pad_inches = 0)
+            # if you always want to show a figure enable this:
             #thres = 0.1
             #plt.pause(10)   
             if len(positiveThresholds) > 1:
