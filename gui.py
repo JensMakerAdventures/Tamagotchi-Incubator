@@ -99,48 +99,48 @@ class TamaGui():
         self.bMurderMode.place(x=205,y=500)
 
         self.textStats = Label(self.gui, 
-                        text ='Stats: ', font= ('Helvetica 22'), justify="left")
-        self.textStats.place(x=630, y=590)
+                        text ='Stats: ', font= ('Helvetica 24'), justify="left")
+        self.textStats.place(x=520, y=580)
 
         lVision = Label()
         lVision.place(x=500, y=20)
         lStats = Label()
-        lStats.place(x=800, y=20)
+        lStats.place(x=800, y=240)
         lHungry = Label()
-        lHungry.place(x=800, y=200)
+        lHungry.place(x=800, y=370)
         lHappy = Label()
-        lHappy.place(x=800, y=380)
+        lHappy.place(x=800, y=500)
         lDiscipline = Label()
-        lDiscipline.place(x=800, y=560)
+        lDiscipline.place(x=800, y=630)
 
         lEgg = Label()
-        lEgg.place(x=530, y=570)
+        lEgg.place(x=750, y=30)
         lBaby = Label()
-        lBaby.place(x=545, y=600)
+        lBaby.place(x=865, y=50)
         lChild = Label()
-        lChild.place(x=530, y=630)
+        lChild.place(x=940, y=40)
         lTeen = Label()
-        lTeen.place(x=530, y=660)
+        lTeen.place(x=750, y=140)
         lAdult = Label()
-        lAdult.place(x=530, y=690)
+        lAdult.place(x=840, y=120)
         lAdultsecret = Label()
-        lAdultsecret.place(x=530, y=720)
+        lAdultsecret.place(x=930, y=130)
 
         self.text_widget = Text(self.gui, wrap="word", width=44, height=9, font = fontLog)
         self.text_widget.place(x=10, y=570)
 
         # format: label object, filename, scale x, scale y
         self.images = ((lVision, 'vision.png', 1, 1), 
-                       (lStats, 'weight_age.jpg', 0.33, 0.33),
-                       (lHungry, 'hunger.jpg', 0.33, 0.33),
-                       (lHappy, 'happiness.jpg', 0.33, 0.33),
-                       (lDiscipline, 'discipline.jpg', 0.33, 0.33),
-                       (lEgg, 'states/egg.png', 0.3, 0.3), 
-                       (lBaby, 'states/baby.png', 0.3, 0.3),
-                       (lChild, 'states/child.png', 0.3, 0.3),
-                       (lTeen, 'states/teen.png', 0.3, 0.3),
-                       (lAdult, 'states/adult.png', 0.3, 0.3),
-                       (lAdultsecret, 'states/adultsecret.png', 0.3, 0.3)
+                       (lStats, 'weight_age.jpg', 0.5, 0.5),
+                       (lHungry, 'hunger.jpg', 0.5, 0.5),
+                       (lHappy, 'happiness.jpg', 0.5, 0.5),
+                       (lDiscipline, 'discipline.jpg', 0.5, 0.5),
+                       (lEgg, 'states/egg.png', 0.5, 0.5), 
+                       (lBaby, 'states/baby.png', 0.5, 0.5),
+                       (lChild, 'states/child.png', 0.5, 0.5),
+                       (lTeen, 'states/teen.png', 0.5, 0.5),
+                       (lAdult, 'states/adult.png', 0.5, 0.5),
+                       (lAdultsecret, 'states/adultsecret.png', 0.5, 0.42)
         )
 
         # Create a logging handler using a queue
@@ -224,6 +224,7 @@ class TamaGui():
             im = im.resize((int(w*image[2]), int(h*image[3])))
 
             if fn in ['weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg']:
+                w, h = im.size
                 im = im.crop([int(w/6), int(h/4), int(w*5/6), int(h*3/4)])
 
             im = ImageTk.PhotoImage(im)

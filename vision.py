@@ -197,7 +197,7 @@ class TamaVision(object):
 
             if likeliness > thres:
                 if patName not in ['heart_empty.png']:
-                    logger.log(logging.ERROR,(patName + ' found with ' + str(int(likeliness*100)) + '% likeliness'))
+                    logger.log(logging.ERROR,('Vision: ' + patName + ' detected - ' + str(int(likeliness*100)) + '% likeliness'))
                 if self.showResult:
                     plt.pause(10)               
                 with self.lock:
