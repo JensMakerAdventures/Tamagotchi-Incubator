@@ -30,6 +30,8 @@ class TamaGui():
         self.autoMode = False
         self.loveMode = True
 
+        self.found_forms = []
+
         self.lightAlwaysOn = True
 
         self.buildGUI()
@@ -78,7 +80,7 @@ class TamaGui():
         restartButton.place(x=610,y=520)
 
         self.saveLightButton = Button(self.gui, text ="Light on mode", command = self.toggle_light_mode, font = fontLog)
-        self.saveLightButton.place(x=630,y=590)
+        self.saveLightButton.place(x=470,y=510)
 
         rButton = Button(self.gui, text ="Push R", command = self.buttonController.pressR, font = fontSmall)
         rButton.place(x=280,y=370)
@@ -96,6 +98,10 @@ class TamaGui():
         self.bMurderMode = Button(self.gui, text ="MURDER", command = self.setMurderMode, font = fontBig)
         self.bMurderMode.place(x=200,y=500)
 
+        self.textStats = Label(self.gui, 
+                        text ='Stats: ', font= ('Helvetica 20'), justify="left")
+        self.textStats.place(x=630, y=580)
+
         lVision = Label()
         lVision.place(x=500, y=20)
         lStats = Label()
@@ -107,7 +113,20 @@ class TamaGui():
         lDiscipline = Label()
         lDiscipline.place(x=800, y=560)
 
-        self.text_widget = Text(self.gui, wrap="word", width=54, height=9, font = fontLog)
+        lEgg = Label()
+        lEgg.place(x=530, y=550)
+        lBaby = Label()
+        lBaby.place(x=530, y=585)
+        lChild = Label()
+        lChild.place(x=530, y=620)
+        lTeen = Label()
+        lTeen.place(x=530, y=655)
+        lAdult = Label()
+        lAdult.place(x=530, y=690)
+        lAdultsecret = Label()
+        lAdultsecret.place(x=530, y=725)
+
+        self.text_widget = Text(self.gui, wrap="word", width=44, height=9, font = fontLog)
         self.text_widget.place(x=10, y=570)
 
         # format: label object, filename, scale x, scale y
@@ -116,6 +135,12 @@ class TamaGui():
                        (lHungry, 'hunger.jpg', 0.33, 0.33),
                        (lHappy, 'happiness.jpg', 0.33, 0.33),
                        (lDiscipline, 'discipline.jpg', 0.33, 0.33),
+                       (lEgg, 'states/egg.png', 0.33, 0.33), 
+                       (lBaby, 'states/baby.png', 0.33, 0.33),
+                       (lChild, 'states/child.png', 0.33, 0.33),
+                       (lTeen, 'states/teen.png', 0.33, 0.33),
+                       (lAdult, 'states/adult.png', 0.33, 0.33),
+                       (lAdultsecret, 'states/adultsecret.png', 0.33, 0.33)
         )
 
         # Create a logging handler using a queue
@@ -168,6 +193,27 @@ class TamaGui():
             self.saveLightButton.config(bg='green')
         else:
             self.saveLightButton.config(bg=self.DefClr)
+
+        # update stats text from log
+        fn = logging.getLoggerClass().root.handlers[0].baseFilename
+        with open(fn, 'r') as in_file:
+            feed_ = sum(line.count("Feeding") for line in in_file)
+        with open(fn, 'r') as in_file:
+            heal_ = sum(line2.count("Healing") for line2 in in_file)
+        with open(fn, 'r') as in_file:
+            play_ = sum(line3.count("Playing") for line3 in in_file)
+        with open(fn, 'r') as in_file:
+            sleep_ = sum(line4.count("Turning light off") for line4 in in_file)
+        with open(fn, 'r') as in_file:
+            clean_ = sum(line5.count("Cleaning") for line5 in in_file)
+
+        self.textStats.config(text=('Stats: ' + 
+                                    '\nMeals: '+str(feed_) +
+                                    '\nCured: '+str(heal_) +
+                                    '\nPlayed: '+str(play_)+
+                                    '\nSlept: '+str(sleep_)+
+                                    '\nCleaned :'+str(clean_)))
+
 
         # update images
         for image in self.images:

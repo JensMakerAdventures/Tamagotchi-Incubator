@@ -111,9 +111,15 @@ class TamaVision(object):
                 image = image > (thresh+self.thresOffset)
                 image = image[-150:-1, -150:-1]
 
-            #if patName in ['poop1.png', 'poop2.png', 'sick.png']:
-            #    # specific crop for poop so baby doesn't get recognized as poop
-                
+            if patName in ['am.png', 'pm.png']: #these symbols appear on the left
+                shape = np.shape(image)
+                width = shape[1]
+                image = image[:, 0:int(width*0.4)]
+
+            if patName in ['poop1.png', 'poop2.png', 'sick.png']: #these symbols appear on the right
+                shape = np.shape(image)
+                width = shape[1]
+                image = image[:, int(width*0.6):width]
 
             i = onlyCheckThisQuarter
             if i > 0:
@@ -211,6 +217,19 @@ class TamaVision(object):
                     plt.pause(10)               
                 with self.lock:
                     shutil.copy(fn, 'visionLog/Found/' + date_time + patName) 
+                    if 'egg' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/egg.png') 
+                    if 'baby' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/baby.png') 
+                    if 'child' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/child.png') 
+                    if 'teen' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/teen.png') 
+                    if 'adult' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/adult.png') 
+                    if 'secret' in patName:
+                        shutil.copy('spritesRescaled/'+patName, 'states/adultsecret.png') 
+
                 plt.close()  
                 if not any(ele in patName for ele in self.excludeImages):
                     shutil.copy(fn, 'visionLog/Interesting/' + date_time + patName) 

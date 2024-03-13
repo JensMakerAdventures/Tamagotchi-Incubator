@@ -86,10 +86,10 @@ class TamaController(object):
 
   def detectCareState(self, frameFileName):
     logger.log(logging.WARNING,('Detecting care needs: poop, sickness and sleeping.'))
-    if self.tamaVision.findPattern(frameFileName, patternFileNames = ['poop1.png', 'poop2.png'], positiveThresholds = [0.45, 0.45], onlyCheckThisQuarter = 1): #baby is poop up to 56%
+    if self.tamaVision.findPattern(frameFileName, patternFileNames = ['poop1.png', 'poop2.png'], positiveThresholds = [0.45, 0.45]): #baby is poop up to 56%
       self.careState.to_poopy()
       return    
-    if self.tamaVision.findPattern(frameFileName, 'sick.png', onlyCheckThisQuarter = 1):
+    if self.tamaVision.findPattern(frameFileName, 'sick.png'):
       self.careState.to_sick()  
       return
     if self.tamaVision.findPattern(frameFileName, patternFileNames=['sleep_1.png', 'sleep_2.png'], positiveThresholds = [0.55, 0.55]):
@@ -134,7 +134,7 @@ class TamaController(object):
         return    
     
     if self.lightsTurnedOff:
-      if self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png']):
+      if self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3]):
         self.physState.to_asleep()  
         return
       else:
@@ -148,10 +148,10 @@ class TamaController(object):
         self.physState.to_egg()
         return
     if self.physState.state in ['unknown', 'egg']:
-      if self.tamaVision.findPattern(frameFileName, 'baby_1.png', positiveThresholds = 0.68): #egg is baby up to 64% likeliness!
+      if self.tamaVision.findPattern(frameFileName, 'baby_1.png', positiveThresholds = 0.5): 
         self.physState.to_baby()
         return
-      if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThresholds = 0.68): #otherwise poop = baby
+      if self.tamaVision.findPattern(frameFileName, 'baby_2.png', positiveThresholds = 0.5): #otherwise poop = baby
         self.physState.to_baby()
         return
     if self.physState.state in ['unknown', 'baby']:
@@ -361,9 +361,12 @@ class TamaController(object):
     self.tamaButtons.pressL()
   
   def checkAndFixClock(self, fn):
-    if self.tamaVision.findPattern(fn, ['am.png', 'pm.png'], onlyCheckThisQuarter = 4):
-      logger.log(logging.ERROR, 'Clock was displaying. I fixed it.')
+    if self.tamaVision.findPattern(fn, ['am.png', 'pm.png']):
+      logger.log(logging.ERROR, 'Clock was displaying, deselecting.')
       self.tamaButtons.pressM()
+      sleep(1)
+      fn = 'frame.jpg'
+      self.getFrame(fn) #get new frame since the old one was showing the clock
 
   def getAndHandleState(self, autoMode, loveMode, lightAlwaysOn):
     self.lightAlwaysOn = lightAlwaysOn
@@ -388,7 +391,7 @@ class TamaController(object):
             logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
             #self.lastCare = time.time() don't update time, keep checking physical form. Baby is very tough to recognize with vision.
             time.sleep(5*60) # wait 5 minutes, then the egg is hatched. Then we can go look for the baby.
-            return
+            self.physState.to_baby()
 
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')

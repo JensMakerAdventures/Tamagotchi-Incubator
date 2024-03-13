@@ -11,7 +11,7 @@ from time import sleep
 import threading
 import shutil
 
-for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg']:
+for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/egg.png', 'states/baby.png', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']:
     shutil.copy('sprites/child_1.png', x)
 
 abspath = os.path.abspath(__file__) # this all makes sure you can run this stuff from command line from any place
