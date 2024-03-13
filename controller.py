@@ -2,6 +2,7 @@ from transitions import Machine
 from time import sleep
 import time
 import logging
+import shutil
 
 logger = logging.getLogger('Tamagotchi')
 
@@ -388,10 +389,13 @@ class TamaController(object):
           logger.log(logging.WARNING,'Detected physical state is: ' + self.physState.state)
 
           if self.physState.state == 'egg':
+            # this is ugly spaghetti code :) sorry. Baby is too hard to detect, so workaround
             logger.log(logging.WARNING,'Not checking care needs, because tama is egg')
             #self.lastCare = time.time() don't update time, keep checking physical form. Baby is very tough to recognize with vision.
             time.sleep(5*60) # wait 5 minutes, then the egg is hatched. Then we can go look for the baby.
             self.physState.to_baby()
+            with self.lock:
+              shutil.copy('spritesRescaled/baby_1.png', 'states/baby.png') 
 
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
