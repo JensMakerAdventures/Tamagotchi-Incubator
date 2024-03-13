@@ -207,11 +207,11 @@ class TamaGui():
         with open(fn, 'r') as in_file:
             clean_ = sum(line5.count("Cleaning") for line5 in in_file)
 
-        self.textStats.config(text=('Meals: '+str(feed_)+'x' +
-                                    '\nCured: '+str(heal_) +'x' +
-                                    '\nPlayed: '+str(play_)+'x' +
-                                    '\nSlept: '+str(sleep_)+'x' +
-                                    '\nCleaned: '+str(clean_)+'x'))
+        self.textStats.config(text=('Feeding: '+str(feed_)+'x' +
+                                    '\nCuring: '+str(heal_) +'x' +
+                                    '\nPlaying: '+str(play_)+'x' +
+                                    '\nSleeping: '+str(sleep_)+'x' +
+                                    '\nCleaning: '+str(clean_)+'x'))
 
 
         # update images
