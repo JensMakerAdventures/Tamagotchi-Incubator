@@ -18,7 +18,7 @@ os.chdir(dname)
 # This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
 os.environ.__setitem__('DISPLAY', ':0.0') 
 
-for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/egg.png', 'states/baby.png', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']:
+for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']: #'states/egg.png', 'states/baby.png', 
     shutil.copy('sprites/child_1.png', x) #reset all images fresh
 
 now = datetime.now()
@@ -40,8 +40,8 @@ tamaButtons = servo_buttons.ButtonController(buttonL, buttonM, buttonR)
 tamaLight = light.TamaLight(14)
 tamaGui = gui.TamaGui(tamaButtons, tamaLight, lock)
 tamaCam = camera.TamaCam()
-# Threshold offset: higher means more black pixels. Normally +0.01 is ok
-# positiveThreshold: 0.40 is good, little valse positives. value above this means we've found the pattern
+# Threshold offset: higher means more black pixels. Normally +0.02 is ok
+# positiveThreshold: 0.40 is good, little false positives. value above this means we've found the pattern
 tamaVision = vision.TamaVision(0.40, 0.01, False, lock)
 tamaController = controller.TamaController(tamaCam, tamaVision, tamaButtons, tamaLight, 600, lock) # care interval is the magic number
 

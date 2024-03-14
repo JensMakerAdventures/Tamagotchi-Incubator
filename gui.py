@@ -32,7 +32,7 @@ class TamaGui():
 
         self.found_forms = []
 
-        self.lightAlwaysOn = True
+        self.lightAlwaysOn = False
 
         self.buildGUI()
 
@@ -208,7 +208,7 @@ class TamaGui():
             clean_ = sum(line5.count("Cleaning") for line5 in in_file)
 
         self.textStats.config(text=('Feeding: '+str(feed_)+'x' +
-                                    '\nCuring: '+str(heal_) +'x' +
+                                    '\nHealing: '+str(heal_) +'x' +
                                     '\nPlaying: '+str(play_)+'x' +
                                     '\nSleeping: '+str(sleep_)+'x' +
                                     '\nCleaning: '+str(clean_)+'x'))
