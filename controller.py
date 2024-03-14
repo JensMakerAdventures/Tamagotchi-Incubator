@@ -399,11 +399,15 @@ class TamaController(object):
           if self.physState.state == 'dead':
             logger.log(logging.WARNING,'Not checking care needs, because tama is dead')
             self.lastCare = time.time()
+            if not self.lightAlwaysOn:
+              self.tamaLight.turnOff()
             return
               
           if self.lightsTurnedOff:
             logger.log(logging.WARNING,'Not checking care needs, tama is asleep...')
             self.lastCare = time.time()
+            if not self.lightAlwaysOn:
+              self.tamaLight.turnOff()
             return
 
           self.detectCareState(fn)
