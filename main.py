@@ -11,15 +11,15 @@ from time import sleep
 import threading
 import shutil
 
-for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/egg.png', 'states/baby.png', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']:
-    shutil.copy('sprites/child_1.png', x)
-
 abspath = os.path.abspath(__file__) # this all makes sure you can run this stuff from command line from any place
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 # This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
 os.environ.__setitem__('DISPLAY', ':0.0') 
+
+for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/egg.png', 'states/baby.png', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']:
+    shutil.copy('sprites/child_1.png', x) #reset all images fresh
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d %H:%M")
@@ -32,8 +32,8 @@ logger = logging.getLogger('Tamagotchi')
 
 lock = threading.Lock()
 
-buttonL = servo_buttons.TamaButton("left", 0, 170, 75) #values found through calibration
-buttonM = servo_buttons.TamaButton("middle", 1, 170, 75)
+buttonL = servo_buttons.TamaButton("left", 0, 170, 74) #values found through calibration
+buttonM = servo_buttons.TamaButton("middle", 1, 170, 73)
 buttonR = servo_buttons.TamaButton("right", 2, 0, 90)
 
 tamaButtons = servo_buttons.ButtonController(buttonL, buttonM, buttonR)

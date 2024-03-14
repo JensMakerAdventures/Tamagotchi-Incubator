@@ -196,7 +196,7 @@ class TamaVision(object):
             #logger.log(logging.WARNING,'Likeliness template match: ' + "{:.2f}".format(likeliness))
 
             if likeliness > thres:
-                if patName not in ['heart_empty.png']:
+                if patName not in ['heart_empty.png', 'sleep_screen1.png', ' sleep_screen2.png']:
                     logger.log(logging.ERROR,('Vision: ' + patName + ' detected - ' + str(int(likeliness*100)) + '% likeliness'))
                 if self.showResult:
                     plt.pause(10)               

@@ -61,13 +61,9 @@ class TamaController(object):
     self.lightsTurnedOff = True
 
 
-  def getFrame(self, fn):
-    self.tamaLight.turnOn()
-    sleep(0.5)
+  def getFrame(self, fn):    
     with self.lock:
       self.tamaCam.getFrameToFile(fn)
-    if not self.lightAlwaysOn:
-      self.tamaLight.turnOff()
     sleep(0.3)
   
   def updateTamaStatsAndDiscipline(self):
@@ -318,7 +314,7 @@ class TamaController(object):
       self.tamaButtons.pressM()
       sleep(5)
       while self.amountUnhappy > 0:
-        for j in range(2): #always play 2 games, since you might not win every one
+        for j in range(3): #always play 3 games, since you might not win every one
           for i in range(5): # a game has 5 rounds
             self.tamaButtons.pressL()
             sleep(4.3) # ok delay wins about half the games, haven't found a better number
@@ -381,6 +377,8 @@ class TamaController(object):
         timeSinceLastCare = int(time.time() - self.lastCare)
         #logger.log(logging.WARNING,'Seconds since last care: ' + str(timeSinceLastCare))
         if timeSinceLastCare > self.careInterval:
+          self.tamaLight.turnOn()
+          sleep(4) # this cam has auto gain, so we must wait long enough or we get fully white pictures at night. 0.5s and 1.5s give completely white pictures after threshold, 3s still a bit dark so 4s it is
           fn = 'frame.jpg'
           self.getFrame(fn)
           self.checkAndFixClock(fn)
@@ -411,7 +409,6 @@ class TamaController(object):
           self.detectCareState(fn)
           logger.log(logging.WARNING,'Care state: ' + self.careState.state)
 
-          self.tamaLight.turnOn()
           self.handleState()
           if not self.lightAlwaysOn:
             self.tamaLight.turnOff()
