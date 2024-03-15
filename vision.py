@@ -64,11 +64,10 @@ class TamaVision(object):
         thresd = cropped > (thresh+self.thresOffset)
         avg = np.average(thresd)
         print(avg)
-        if avg <0.8:
-            logger.log(logging.ERROR,('Vision: Screen is dark, assuming sleeping tama.'))
+        if avg <0.72: #tested 0.92 is day, 0.52 is night
+            #logger.log(logging.ERROR,('Vision: Screen is dark, assuming sleeping tama.'))
             return True
         else:
-            logger.log(logging.ERROR,('Vision: Screen is not dark, assuming tama is awake'))
             return False
     
     def mealSelected(self, fn):
