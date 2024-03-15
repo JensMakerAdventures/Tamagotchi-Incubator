@@ -132,10 +132,10 @@ class TamaController(object):
     
     if self.lightsTurnedOff:
       # so much code, auto gain of cam changes, so sometimes you miss sleeping and start checking stuff in middle of night. We don't want that, but we don't want to miss wake up of tama
-      if (self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.5, 0.5]) or
-          self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.5, 0.5], thresOffset = 0.02) or
-            self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.5, 0.5], thresOffset = 0.04) or
-              self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.5, 0.5], thresOffset = -0.02) or
+      if (self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3]) or
+          self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3], thresOffset = 0.025) or
+            self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3], thresOffset = 0.05) or
+              self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3], thresOffset = -0.02) or
           self.tamaVision.screenIsDark(frameFileName)): #0.5, 0.55 when dark
         self.physState.to_asleep()  
         return
