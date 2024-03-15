@@ -102,6 +102,8 @@ class TamaGui():
                         text ='Stats: ', font= ('Helvetica 24'), justify="left")
         self.textStats.place(x=520, y=580)
 
+        lFrame = Label()
+        lFrame.place(x=30, y=30)
         lVision = Label()
         lVision.place(x=500, y=20)
         lStats = Label()
@@ -130,7 +132,8 @@ class TamaGui():
         self.text_widget.place(x=10, y=570)
 
         # format: label object, filename, scale x, scale y
-        self.images = ((lVision, 'vision.png', 1, 1), 
+        self.images = ((lVision, 'vision.png', 1, 1),
+                       (lFrame, 'frame.jpg', 0.6,0.6), 
                        (lStats, 'weight_age.jpg', 0.5, 0.5),
                        (lHungry, 'hunger.jpg', 0.5, 0.5),
                        (lHappy, 'happiness.jpg', 0.5, 0.5),

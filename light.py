@@ -6,6 +6,7 @@ class TamaLight(object):
         GPIO.setmode(GPIO.BCM)
         self.lightPin = lightPin
         GPIO.setup(self.lightPin, GPIO.OUT)
+        self.turnOff()
 
     def strobe(self, endState, nStrobes, interval):
         for x in range(nStrobes):

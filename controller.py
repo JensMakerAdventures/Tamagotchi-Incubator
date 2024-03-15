@@ -131,7 +131,11 @@ class TamaController(object):
         return    
     
     if self.lightsTurnedOff:
-      if self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3]):
+      # so much code, auto gain of cam changes, so sometimes you miss sleeping and start checking stuff in middle of night. We don't want that, but we don't want to miss wake up of tama
+      if (self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.4, 0.4]) or
+            self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.4, 0.4], thresOffset = -0.01) or
+              self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.4, 0.4], thresOffset = 0.01) or
+          self.tamaVision.screenIsDark(frameFileName)):
         self.physState.to_asleep()  
         return
       else:
@@ -295,7 +299,6 @@ class TamaController(object):
         logger.log(logging.ERROR,'Feeding the Tamagotchi.')
         self.tamaButtons.pressL()
         self.tamaButtons.pressM() #open food menu
-
         fn = 'frame.jpg'
         self.getFrame(fn)
         if not self.tamaVision.mealSelected(fn): # select nutricious food, our tama must not eat snacks

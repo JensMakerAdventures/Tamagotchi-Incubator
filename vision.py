@@ -56,6 +56,20 @@ class TamaVision(object):
     
     def cropImage(self, image):
         return image[120:370, 65:550]
+
+    def screenIsDark(self, fn):
+        input = ski.io.imread(fn, as_gray=True)
+        cropped = self.cropImage(input) # crop screen
+        thresh = threshold_yen(cropped)
+        thresd = cropped > (thresh+self.thresOffset)
+        avg = np.average(thresd)
+        print(avg)
+        if avg <0.8:
+            logger.log(logging.ERROR,('Vision: Screen is dark, assuming sleeping tama.'))
+            return True
+        else:
+            logger.log(logging.ERROR,('Vision: Screen is not dark, assuming tama is awake'))
+            return False
     
     def mealSelected(self, fn):
         input = ski.io.imread(fn, as_gray=True)
@@ -85,13 +99,17 @@ class TamaVision(object):
             logger.log(logging.WARNING,('Vision: Snack food option seems selected.'))
             return False
 
-    def findPattern(self, imageFileName, patternFileNames, positiveThresholds = None, onlyCheckThisQuarter = 0):
+    def findPattern(self, imageFileName, patternFileNames, positiveThresholds = None, onlyCheckThisQuarter = 0, thresOffset = None):
         if not isinstance(patternFileNames, (tuple, list)):
             patternFileNames = [patternFileNames]
         if positiveThresholds is None:
             positiveThresholds = self.positiveThreshold
         if not isinstance(positiveThresholds, (tuple, list)):
             positiveThresholds = [positiveThresholds]
+        if thresOffset is None:
+            thresOffsetLocal = self.thresOffset
+        else:
+            thresOffsetLocal = self.thresOffset + thresOffset
 
         for idx, patName in enumerate(patternFileNames):
             image = ski.io.imread(imageFileName, as_gray=True)
@@ -99,7 +117,7 @@ class TamaVision(object):
 
             # threshold image using yen algorithm, this is best (determined through try_all_threshold function from skimage)
             thresh = threshold_yen(image)
-            image = image > (thresh+self.thresOffset)
+            image = image > (thresh+thresOffsetLocal)
 
             if patName in ['am.png', 'pm.png']: #these symbols appear on the left
                 shape = np.shape(image)
