@@ -18,7 +18,8 @@ os.chdir(dname)
 # This line is essential, do not remove. This makes sure you can display to the 3.5 inch display
 os.environ.__setitem__('DISPLAY', ':0.0') 
 
-for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/child.png', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']: #'states/egg.png', 'states/baby.png', 
+# REMOVE BEFORE FINAL GIT
+for x in ['vision.png', 'weight_age.jpg', 'hunger.jpg', 'happiness.jpg', 'discipline.jpg', 'states/teen.png', 'states/adult.png', 'states/adultsecret.png']: #'states/egg.png', 'states/baby.png', 'states/child.png', removed these because developing while growing up, icons don't auto detect yet  
     shutil.copy('sprites/child_1.png', x) #reset all images fresh
 
 now = datetime.now()

@@ -50,6 +50,8 @@ class TamaController(object):
     self.tamaLight = tamaLight
     self.careState = TamaCareState()
     self.physState = TamaPhysState()
+    # REMOVE THIS BEFORE FINAL GIT
+    self.physState.state = 'child' # REMOVE THIS BEFORE FINAL GIT
     self.amountHunger = 0
     self.amountUnhappy = 0
     self.careInterval = careInterval
