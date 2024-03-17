@@ -49,7 +49,7 @@ class TamaGui():
         self.loveMode = False
 
     def shutdown(self):
-        os.system('sudo shutdown -r now')
+        os.system('sudo shutdown -P now')
         
     def stop_app(self):
         exit()
@@ -76,8 +76,8 @@ class TamaGui():
         shutdownButton = Button(self.gui, text ="Shutdown", command = self.shutdown, font = fontSmall)
         shutdownButton.place(x=610,y=470)
 
-        restartButton = Button(self.gui, text ="Stop app", command = self.stop_app, font = fontSmall)
-        restartButton.place(x=610,y=520)
+        stopButton = Button(self.gui, text ="Stop app", command = self.stop_app, font = fontSmall)
+        stopButton.place(x=610,y=520)
 
         self.saveLightButton = Button(self.gui, text ="Light on \nmode", command = self.toggle_light_mode, font = ('Helvetica 18'))
         self.saveLightButton.place(x=485,y=500)

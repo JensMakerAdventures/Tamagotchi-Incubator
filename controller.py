@@ -27,7 +27,7 @@ class TamaCareState(object):
     self.machine.add_transition('discipline', 'undisciplined', 'idle')
 
 class TamaPhysState(object):
-  physStates = ['unknown', 'egg', 'asleep', 'baby', 'child', 'teen', 'adult', 
+  physStates = ['unknown', 'egg', 'baby', 'child', 'teen', 'adult', 
                       'adult_secret', 'dead']
   teenType = 'none'
   adultType = 'none'
@@ -137,7 +137,6 @@ class TamaController(object):
             self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3], thresOffset = 0.05) or
               self.tamaVision.findPattern(frameFileName, ['sleep_screen1.png', 'sleep_screen2.png'], [0.3, 0.3], thresOffset = -0.02) or
           self.tamaVision.screenIsDark(frameFileName)): #0.5, 0.55 when dark
-        self.physState.to_asleep()  
         return
       else:
         logger.log(logging.ERROR,('Vision: Tamagotchi is awake!'))

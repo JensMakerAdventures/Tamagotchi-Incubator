@@ -65,7 +65,7 @@ class TamaVision(object):
         avg = np.average(thresd)
         print(avg)
         if avg <0.72: #tested 0.92 is day, 0.52 is night
-            logger.log(logging.ERROR,('Vision: Screen is dark: '+str(avg)+'%, assuming sleeping tama.'))
+            #logger.log(logging.ERROR,('Vision: Screen is dark: '+str(avg)+'%, assuming sleeping tama.'))
             return True
         else:
             return False
